@@ -1,0 +1,51 @@
+/* Styles for the popup */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 300px;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+.container {
+  padding: 16px;
+}
+
+h1 {
+  font-size: 18px;
+  color: #1a73e8;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+p {
+  font-size: 14px;
+  color: #5f6368;
+  margin-bottom: 16px;
+}
+
+button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0d66d0;
+}
+
+#result {
+  margin-top: 16px;
+  padding: 8px;
+  background-color: #e8f0fe;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #3c4043;
+  min-height: 20px;
+}
