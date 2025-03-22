@@ -67,6 +67,7 @@ contract LoanOffer is Ownable {
 
         require(lenders[msg.sender].publicKey == bytes32(0), "Public key already registered");
         lenders[msg.sender] = newLender;
+        require(lenders[msg.sender].publicKey != bytes32(0), "Public key Set");
         emit PublicKeyRegistered(msg.sender, key);
     }
 
@@ -94,7 +95,6 @@ contract LoanOffer is Ownable {
 
         // Recover the signer from the signature
         address signer = recoverSigner(offerHash, signature);
-
         // Ensure the signer matches the registered address
         require(lenders[signer].publicKey != bytes32(0), "Signer not registered");
         require(signer == msg.sender, "Signature does not match sender");
