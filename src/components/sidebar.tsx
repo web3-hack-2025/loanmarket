@@ -1,16 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { 
   Home, 
-  CreditCard, 
   UserSquare, 
-  RefreshCw, 
-  Compass, 
-  Calculator,
   HandCoins, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ShaderBackground from "./ShaderBackground";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
