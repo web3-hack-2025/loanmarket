@@ -7,8 +7,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, XCircle } from "lucide-react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { getLoanContractConfig, formatLoanAmount, parseLoanAmount } from "@/lib/contracts/loan-contract";
+import { Progress } from "@/components/ui/progress";
 
 enum TransactionStatus {
   IDLE = "idle",
@@ -30,6 +31,8 @@ export function ExecuterPage() {
   
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(TransactionStatus.IDLE);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [confirmations, setConfirmations] = useState<number>(0);
+  const [requiredConfirmations] = useState<number>(3); // Set required confirmations (adjust as needed)
   
   // Get the loan contract configuration
   const contractConfig = getLoanContractConfig();
@@ -69,33 +72,55 @@ export function ExecuterPage() {
   };
   
   // Wait for transaction to complete
-  // const { 
-  //   isSuccess: txSuccess, 
-  //   isError: txIsError, 
-  //   error: txError 
-  // } = useTransaction({
-  //   hash: txData?.hash,
-  //   onSuccess: () => {
-  //     setTransactionStatus(TransactionStatus.SUCCESS);
-  //     refetchStoredValue();
-  //   },
-  //   onError: (error) => {
-  //     setTransactionStatus(TransactionStatus.ERROR);
-  //     setErrorMessage(error?.message || "Transaction failed");
-  //   }
-  // });
+  const { 
+    isLoading: isWaiting,
+    isSuccess: txSuccess,
+    isError: txIsError,
+    error: txError,
+    data: receipt
+  } = useWaitForTransactionReceipt({
+    hash: txData,
+    confirmations: requiredConfirmations,
+    onReplaced: (response) => {
+      console.log('Transaction replaced:', response);
+    },
+  });
+
+  // Update confirmations when a new block is mined
+  useEffect(() => {
+    if (txData && isWaiting) {
+      // This is a simplified approach since wagmi doesn't directly expose block confirmations
+      // You might need to implement a more complex solution with block subscriptions
+      if (receipt && receipt.blockNumber) {
+        const currentConfirmations = Math.min(receipt.confirmations || 1, requiredConfirmations);
+        setConfirmations(currentConfirmations);
+      } else {
+        setConfirmations(0); // Transaction submitted but not yet mined
+      }
+    }
+  }, [txData, isWaiting, receipt, requiredConfirmations]);
   
+  // Handle transaction completion
+  useEffect(() => {
+    if (txSuccess) {
+      setTransactionStatus(TransactionStatus.SUCCESS);
+      setConfirmations(requiredConfirmations);
+      refetchStoredValue();
+    } else if (txIsError && txError) {
+      setTransactionStatus(TransactionStatus.ERROR);
+      setErrorMessage(txError.message || "An error occurred during transaction processing");
+    }
+  }, [txSuccess, txIsError, txError, refetchStoredValue, requiredConfirmations]);
+
   // Handle effects of contract writing states
   useEffect(() => {
     if (isPending) {
       setTransactionStatus(TransactionStatus.PENDING);
       setErrorMessage("");
+      setConfirmations(0);
     } else if (isError && writeError) {
       setTransactionStatus(TransactionStatus.ERROR);
       setErrorMessage(writeError.message || "An error occurred while writing to the contract");
-    // } else if (txIsError && txError) {
-    //   setTransactionStatus(TransactionStatus.ERROR);
-    //   setErrorMessage(txError.message || "An error occurred during transaction processing");
     }
   }, [isPending, isError, writeError]);
   
@@ -210,13 +235,33 @@ export function ExecuterPage() {
             </CardHeader>
             <CardContent>
               {transactionStatus === TransactionStatus.PENDING && (
-                <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
-                  <Spinner className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 flex justify-between items-stretch">
+                  <div>
                   <AlertTitle>Transaction in Progress</AlertTitle>
                   <AlertDescription>
                     Please wait while your transaction is being processed on the blockchain.
                     Do not close this window.
+                      
+                    {txData && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Transaction sent</span>
+                          <span>{confirmations} of {requiredConfirmations} confirmations</span>
+                        </div>
+                        <Progress 
+                          value={(confirmations / requiredConfirmations) * 100} 
+                          className="h-2 bg-yellow-200 dark:bg-yellow-900"
+                        />
+                        <p className="text-xs mt-1">
+                          Transaction hash: <span className="font-mono break-all">{txData}</span>
+                        </p>
+                      </div>
+                    )}
                   </AlertDescription>
+                  </div>
+                  <div className="flex items-center">
+                    <Spinner className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                  </div>
                 </Alert>
               )}
 
@@ -226,7 +271,7 @@ export function ExecuterPage() {
                   <AlertTitle>Transaction Successful</AlertTitle>
                   <AlertDescription>
                     Your loan has been successfully processed. Transaction hash: 
-                    <span className="font-mono text-xs block mt-1 break-all">{txData?.hash}</span>
+                    <span className="font-mono text-xs block mt-1 break-all">{txData}</span>
                   </AlertDescription>
                 </Alert>
               )}
