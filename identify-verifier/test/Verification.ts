@@ -3,38 +3,46 @@ import { } from "@nomicfoundation/hardhat-chai-matchers"
 import hre from 'hardhat'
 import { Contract, BigNumberish, BytesLike } from 'ethers'
 import { LoanOffer } from "../typechain-types/contracts/Verification.sol/LoanOffer"
+import { TransferFunds } from "../typechain-types/contracts/Verification.sol/TransferFunds"
 import * as assert from 'assert';
 
 describe("LoanOffer", function () {
-  let contract: LoanOffer;
+  let loanOfferContract: LoanOffer;
+  let transferFundsContract: TransferFunds;
   let user1: any, user2: any;
   let bank1: any, bank2: any, bank3: any;
 
     beforeEach(async function () {
+        // await hre.network.provider.send("hardhat_reset");
         [user1, user2] = await hre.ethers.getSigners();
         [bank1, bank2, bank3] = await hre.ethers.getSigners();
 
+        const TransferFunds = await hre.ethers.getContractFactory("TransferFunds");
+        transferFundsContract = (await TransferFunds.deploy({})) as TransferFunds;
+        await transferFundsContract.waitForDeployment();
+        
         const LoanOffer = await hre.ethers.getContractFactory("LoanOffer");
-        contract = (await LoanOffer.deploy({
-        })) as LoanOffer;
-        await contract.waitForDeployment();
+        
+        loanOfferContract = (await LoanOffer.deploy(transferFundsContract.getAddress()
+        )) as LoanOffer;
+        await loanOfferContract.waitForDeployment();
     });
 
     it("Should allow a user to add themselves to system", async function () {
-        await expect(contract.connect(user1).addUserToSystem())
-        .to.emit(contract, "UserAdded")
+        await expect(loanOfferContract.connect(user1).addUserToSystem())
+        .to.emit(loanOfferContract, "UserAdded")
         .withArgs(user1.address, 32);
         try
         {
-            await contract.connect(user1).addUserToSystem();
+            await loanOfferContract.connect(user1).addUserToSystem();
             assert.fail("Should Throw")
         }
         catch (err)
         {
             // assert.equal(err.message, 'User already registered')
         }
-        await expect(contract.connect(user2).addUserToSystem())
-        .to.emit(contract, "UserAdded")
+        await expect(loanOfferContract.connect(user2).addUserToSystem())
+        .to.emit(loanOfferContract, "UserAdded")
         .withArgs(user2.address, 32);
 
     });
@@ -50,13 +58,13 @@ describe("LoanOffer", function () {
         // Output the private and public keys
         console.log("Private Key:", walletANZ.privateKey);
         console.log("Public Key:", walletANZ.publicKey);
-        await expect(contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey))
-        .to.emit(contract, "PublicKeyRegistered")
+        await expect(loanOfferContract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey))
+        .to.emit(loanOfferContract, "PublicKeyRegistered")
         .withArgs(bank1.address, walletASB.publicKey);
 
         try
         {
-            await contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
+            await loanOfferContract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
             assert.fail("Should Throw")
         }
         catch (err)
@@ -64,8 +72,8 @@ describe("LoanOffer", function () {
             // assert.equal(err.message, 'User already registered')
         }
 
-        await expect(contract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey))
-        .to.emit(contract, "PublicKeyRegistered")
+        await expect(loanOfferContract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey))
+        .to.emit(loanOfferContract, "PublicKeyRegistered")
         .withArgs(bank2.address, walletANZ.publicKey);
     });
 
@@ -76,10 +84,10 @@ describe("LoanOffer", function () {
         // Generate random wallet (private and public key)
         const walletASB = ethers.Wallet.createRandom();
         const walletANZ = ethers.Wallet.createRandom();
-        await contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
-        await contract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey);
-        await contract.connect(user1).addUserToSystem();
-        await contract.connect(user2).addUserToSystem();
+        await loanOfferContract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
+        await loanOfferContract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey);
+        await loanOfferContract.connect(user1).addUserToSystem();
+        await loanOfferContract.connect(user2).addUserToSystem();
         let expiryDateUnixSeconds: number = Date.now() + 1000 * 180;
 
         const nonce: BigNumberish = 12345;
@@ -92,9 +100,10 @@ describe("LoanOffer", function () {
         const signature = await walletASB.signMessage(hre.ethers.getBytes(offerHash));
         try
         {
-            await contract.connect(bank1).makeOffer("ASB", 1000000, user1.address, expiryDateUnixSeconds, 
+            await expect(loanOfferContract.connect(bank1).acceptOffer("ASB", 1000000, user1.address, expiryDateUnixSeconds, 
                 nonce,
-                signature);
+                signature)).to.emit(transferFundsContract, "Received")
+                .withArgs(transferFundsContract.getAddress(), 1000000);;
         }
         catch(err)
         {
@@ -102,7 +111,7 @@ describe("LoanOffer", function () {
         }   
         try
         {
-            await contract.connect(bank3).makeOffer("TSB", 1000000, user1.address, expiryDateUnixSeconds, 
+            await loanOfferContract.connect(bank3).acceptOffer("TSB", 1000000, user1.address, expiryDateUnixSeconds, 
         "0x8c793150f8099458424bb7fd0c0b673d779b1772d1772a9054bb68fdcf6551dc",
         "0x2c6406d3b32c2e55d6366b7f7cced0b1c3433a4bfb7b2fa58da66d49f6c3c0cd5e8b6151057c9477a4c3c05408b9e730bb37dbbb456dd10c120f9c5c6a9380d601");
         assert.fail("Should Throw as this bank is not registered");

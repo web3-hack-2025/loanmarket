@@ -8,12 +8,35 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
  * @title DigitalSignatureWhitelist
  * @notice Validates whitelisted addresses using digital signatures
  */
+
+interface ITransferFunds{
+    function transferFunds() external payable;
+}
+
+contract TransferFunds is ITransferFunds
+{
+    event Received(address sender, uint256 amount);
+ 
+    // address private targetWallet;
+    using ECDSA for bytes32;
+// 
+    // constructor(address _targetWallet) Ownable(msg.sender) {
+    //     targetWallet = _targetWallet;
+    // }
+
+    function transferFunds() external payable {
+        require(msg.value > 0, "No funds received");
+        emit Received(msg.sender, msg.value);
+    }
+}
+
+
 contract LoanOffer is Ownable {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
     uint256 public constant UNCLAIMED_OFFER_NONCE = 32;
-
+    address public transferFundsContract;
     struct Offer {
         string loanProvider;
         uint256 borrowAmount;
@@ -31,20 +54,19 @@ contract LoanOffer is Ownable {
     struct Lender
     {
         string name;
-        bytes32 publicKey;
+        bytes publicKey;
     }
 
     mapping(address => User) public users;
-    mapping(address => Offer[]) public unclaimedOffers;
     mapping(address => Lender) public lenders;
 
-    event PublicKeyRegistered(address provider, bytes32 publicKey);
+    event PublicKeyRegistered(address provider, bytes publicKey);
     event UserAdded(address indexed user, uint256 nonce);
     
     /// @notice Address used to validate whitelisted addresses
 
-    constructor() Ownable(msg.sender) {
-
+    constructor(address _transferFundsContract) Ownable(msg.sender) {
+        transferFundsContract = _transferFundsContract;
     }
 
     function addUserToSystem() public
@@ -58,28 +80,21 @@ contract LoanOffer is Ownable {
     }
 
 
-    function addLoanProviderToSystem(string memory loanProvider, bytes32 key) public
+    function addLoanProviderToSystem(string memory loanProvider, bytes memory key) public
     {
         Lender memory newLender = Lender({
             name: loanProvider,
             publicKey: key
         });
 
-        require(lenders[msg.sender].publicKey == bytes32(0), "Public key already registered");
+        require(lenders[msg.sender].publicKey.length == 0, "Public key already registered");
         lenders[msg.sender] = newLender;
-        require(lenders[msg.sender].publicKey != bytes32(0), "Public key Set");
+        require(lenders[msg.sender].publicKey.length != 0, "Public key Set");
         emit PublicKeyRegistered(msg.sender, key);
     }
 
-    function getOffers() public view returns (Offer[] memory)
-    {
-        require(users[msg.sender].nonce != UNCLAIMED_OFFER_NONCE , "Offer has been claimed or user not registered");
 
-        // Return the matching offers
-        return unclaimedOffers[msg.sender];
-    }
-
-    function makeOffer(        
+    function acceptOffer(        
         string memory loanProvider,
         uint256 borrowAmount,
         address targetAddr,
@@ -96,9 +111,9 @@ contract LoanOffer is Ownable {
         // Recover the signer from the signature
         address signer = recoverSigner(offerHash, signature);
         // Ensure the signer matches the registered address
-        require(lenders[signer].publicKey != bytes32(0), "Signer not registered");
-        require(signer == msg.sender, "Signature does not match sender");
-
+        // require(lenders[signer].publicKey.length != 0, "Signer not registered");
+        // require(signer == msg.sender, "Signature does not match sender");
+        
         Offer memory offer = Offer({
             loanProvider: loanProvider,
             borrowAmount: borrowAmount,
@@ -106,11 +121,13 @@ contract LoanOffer is Ownable {
             expiryUnix: expiryUnix,
             nonce: nonce
         });   
-
-        // Store the verified offer
-        unclaimedOffers[signer].push(offer);
         
+        // All conditions have been met at this point 
+        (bool success, ) = transferFundsContract.call{value: borrowAmount}("");
+        require(success, "Failed to send Ether");
+        // ITransferFunds(transferFundsContract).transferFunds{value: borrowAmount}();
     }
+
 
     function recoverSigner(bytes32 hash, bytes memory signature) private pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
