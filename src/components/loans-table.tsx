@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoan } from "@/hooks/useLoan";
+import { useAdjustedLoans } from "@/context/AdjustedLoansContext";
 import {
   Table,
   TableBody,
@@ -10,160 +11,17 @@ import {
 } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
 
-interface Loan {
+export interface Loan {
   id: string;
   name: string;
   provider: string;
   interestRate: string;
   term: string;
+  offer: string;
   collateralRequired: string;
   maxAmount: string;
   status: "available" | "limited" | "coming soon";
 }
-
-const loans: Loan[] = [
-  {
-    id: "1",
-    name: "Bitcoin Backed Loan",
-    provider: "Nexo",
-    interestRate: "8.9%",
-    term: "12 months",
-    collateralRequired: "BTC",
-    maxAmount: "$100,000",
-    status: "available",
-  },
-  {
-    id: "2",
-    name: "Ethereum Flexible Loan",
-    provider: "Aave",
-    interestRate: "3.5%",
-    term: "Open-ended",
-    collateralRequired: "ETH",
-    maxAmount: "$50,000",
-    status: "available",
-  },
-  {
-    id: "3",
-    name: "Stablecoin Loan",
-    provider: "Compound",
-    interestRate: "5.2%",
-    term: "6 months",
-    collateralRequired: "USDC, DAI",
-    maxAmount: "$25,000",
-    status: "available",
-  },
-  {
-    id: "4",
-    name: "Flash Loan",
-    provider: "dYdX",
-    interestRate: "1% flat fee",
-    term: "Instant",
-    collateralRequired: "None",
-    maxAmount: "$1,000,000",
-    status: "limited",
-  },
-  {
-    id: "5",
-    name: "DeFi Yield Farming Loan",
-    provider: "Maker",
-    interestRate: "Variable",
-    term: "3-24 months",
-    collateralRequired: "Multiple assets",
-    maxAmount: "$200,000",
-    status: "coming soon",
-  },
-  {
-    id: "6",
-    name: "Home Loan Special",
-    provider: "ANZ NZ",
-    interestRate: "5.79%",
-    term: "1 year fixed",
-    collateralRequired: "Property",
-    maxAmount: "$800,000",
-    status: "available",
-  },
-  {
-    id: "7",
-    name: "Personal Loan",
-    provider: "ASB Bank",
-    interestRate: "12.95%",
-    term: "1-7 years",
-    collateralRequired: "None",
-    maxAmount: "$50,000",
-    status: "available",
-  },
-  {
-    id: "8",
-    name: "Car Loan",
-    provider: "Westpac NZ",
-    interestRate: "9.95%",
-    term: "1-5 years",
-    collateralRequired: "Vehicle",
-    maxAmount: "$100,000",
-    status: "available",
-  },
-  {
-    id: "9",
-    name: "Business Loan",
-    provider: "BNZ",
-    interestRate: "7.85%",
-    term: "1-15 years",
-    collateralRequired: "Business assets",
-    maxAmount: "$500,000",
-    status: "available",
-  },
-  {
-    id: "10",
-    name: "Kiwibank Home Loan",
-    provider: "Kiwibank",
-    interestRate: "5.69%",
-    term: "2 years fixed",
-    collateralRequired: "Property",
-    maxAmount: "$1,000,000",
-    status: "available",
-  },
-  
-  {
-    id: "12",
-    name: "First Home Loan",
-    provider: "Co-operative Bank",
-    interestRate: "5.75%",
-    term: "30 years max",
-    collateralRequired: "Property",
-    maxAmount: "$600,000",
-    status: "available",
-  },
-  {
-    id: "13",
-    name: "Crypto-Backed Loan",
-    provider: "Easy Crypto",
-    interestRate: "3.5%",
-    term: "3-12 months",
-    collateralRequired: "BTC, ETH",
-    maxAmount: "$500,000",
-    status: "available",
-  },
-  {
-    id: "14",
-    name: "Investment Property Loan",
-    provider: "SBS Bank",
-    interestRate: "6.15%",
-    term: "1-30 years",
-    collateralRequired: "Property",
-    maxAmount: "$2,000,000",
-    status: "available",
-  },
-  {
-    id: "15",
-    name: "Renovation Loan",
-    provider: "TSB Bank",
-    interestRate: "6.99%",
-    term: "1-10 years",
-    collateralRequired: "Property",
-    maxAmount: "$100,000",
-    status: "available",
-  },
-];
 
 type SortDirection = "asc" | "desc" | null;
 type SortableColumn = keyof Omit<Loan, "id">;
@@ -171,24 +29,26 @@ type SortableColumn = keyof Omit<Loan, "id">;
 // Function to get provider logo
 export function getProviderLogo(provider: string): string {
   const logos: Record<string, string> = {
-    "Nexo": "https://cryptologos.cc/logos/nexo-nexo-logo.png",
-    "Aave": "https://cryptologos.cc/logos/aave-aave-logo.png",
-    "Compound": "https://cryptologos.cc/logos/compound-comp-logo.png",
-    "dYdX": "https://cryptologos.cc/logos/dydx-dydx-logo.png",
-    "Maker": "https://cryptologos.cc/logos/maker-mkr-logo.png",
+    Nexo: "https://cryptologos.cc/logos/nexo-nexo-logo.png",
+    Aave: "https://cryptologos.cc/logos/aave-aave-logo.png",
+    Compound: "https://cryptologos.cc/logos/compound-comp-logo.png",
+    dYdX: "https://cryptologos.cc/logos/dydx-dydx-logo.png",
+    Maker: "https://cryptologos.cc/logos/maker-mkr-logo.png",
     "ANZ NZ": "/logos/anz.png",
     "ASB Bank": "/logos/asb.png",
     "Westpac NZ": "/logos/westpac.png",
-    "BNZ": "/logos/bnz.jpeg",
-    "Kiwibank": "/logos/kiwibank.png",
-    "StudyLink": "https://www.studylink.govt.nz/images/logo.png",
+    BNZ: "/logos/bnz.jpeg",
+    Kiwibank: "/logos/kiwibank.png",
+    StudyLink: "https://www.studylink.govt.nz/images/logo.png",
     "Co-operative Bank": "/logos/cooperative.jpeg",
     "Easy Crypto": "/logos/easy-crypto.webp",
     "SBS Bank": "/logos/sbs.png",
-    "TSB Bank": "/logos/tsb.png"
+    "TSB Bank": "/logos/tsb.png",
   };
 
-  return logos[provider] || "https://placehold.co/24x24?text=" + provider.charAt(0);
+  return (
+    logos[provider] || "https://placehold.co/24x24?text=" + provider.charAt(0)
+  );
 }
 
 // Helper function to check if a loan term matches the selected term
@@ -196,38 +56,54 @@ function isTermMatching(loanTerm: string, selectedTerm: string): boolean {
   if (!selectedTerm) return true; // If no term is selected, match all
 
   // Handle exact matches (e.g., "6 months")
-  if (loanTerm === `${selectedTerm} months` || loanTerm === `${selectedTerm} month`) {
+  if (
+    loanTerm === `${selectedTerm} months` ||
+    loanTerm === `${selectedTerm} month`
+  ) {
     return true;
   }
-  
+
   // Handle ranges (e.g., "3-12 months")
-  if (loanTerm.includes('-') && loanTerm.includes('month')) {
-    const [minTerm, maxTermWithUnit] = loanTerm.split('-');
+  if (loanTerm.includes("-") && loanTerm.includes("month")) {
+    const [minTerm, maxTermWithUnit] = loanTerm.split("-");
     if (minTerm && maxTermWithUnit) {
-      const maxTerm = maxTermWithUnit.split(' ')[0];
+      const maxTerm = maxTermWithUnit.split(" ")[0];
       const selectedTermNum = parseInt(selectedTerm);
-      if (!isNaN(selectedTermNum) && !isNaN(parseInt(minTerm)) && !isNaN(parseInt(maxTerm))) {
-        return selectedTermNum >= parseInt(minTerm) && selectedTermNum <= parseInt(maxTerm);
+      if (
+        !isNaN(selectedTermNum) &&
+        !isNaN(parseInt(minTerm)) &&
+        !isNaN(parseInt(maxTerm))
+      ) {
+        return (
+          selectedTermNum >= parseInt(minTerm) &&
+          selectedTermNum <= parseInt(maxTerm)
+        );
       }
     }
   }
-  
+
   // Handle "X years" by converting to months (approximate)
-  if (loanTerm.includes('year')) {
-    const yearPart = loanTerm.split(' ')[0];
+  if (loanTerm.includes("year")) {
+    const yearPart = loanTerm.split(" ")[0];
     // Handle ranges like "1-5 years"
-    if (yearPart.includes('-')) {
-      const [minYears, maxYears] = yearPart.split('-');
+    if (yearPart.includes("-")) {
+      const [minYears, maxYears] = yearPart.split("-");
       if (minYears && maxYears) {
         const selectedTermMonths = parseInt(selectedTerm);
         const minMonths = parseInt(minYears) * 12;
         const maxMonths = parseInt(maxYears) * 12;
-        if (!isNaN(selectedTermMonths) && !isNaN(minMonths) && !isNaN(maxMonths)) {
-          return selectedTermMonths >= minMonths && selectedTermMonths <= maxMonths;
+        if (
+          !isNaN(selectedTermMonths) &&
+          !isNaN(minMonths) &&
+          !isNaN(maxMonths)
+        ) {
+          return (
+            selectedTermMonths >= minMonths && selectedTermMonths <= maxMonths
+          );
         }
       }
     }
-    
+
     // Handle fixed years like "1 year fixed"
     if (!isNaN(parseInt(yearPart))) {
       const yearMonths = parseInt(yearPart) * 12;
@@ -238,14 +114,16 @@ function isTermMatching(loanTerm: string, selectedTerm: string): boolean {
       }
     }
   }
-  
+
   // Special cases
-  if (loanTerm.toLowerCase().includes('open-ended') || 
-      loanTerm.toLowerCase().includes('instant') || 
-      loanTerm.toLowerCase().includes('flexible')) {
+  if (
+    loanTerm.toLowerCase().includes("open-ended") ||
+    loanTerm.toLowerCase().includes("instant") ||
+    loanTerm.toLowerCase().includes("flexible")
+  ) {
     return true; // These are available for any term
   }
-  
+
   return false;
 }
 
@@ -258,58 +136,35 @@ export function LoansTable() {
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingModalOpen, setIsLoadingModalOpen] = useState(false);
-  const [adjustedLoans, setAdjustedLoans] = useState<Loan[]>(loans);
-  
-  // Get the requested loan amount and term length from context
-  const { requestedAmount, termLength, setSelectedLoan: setContextSelectedLoan } = useLoan();
+
+  const { adjustedLoans, updateAdjustedLoans } = useAdjustedLoans();
+  const {
+    requestedAmount,
+    termLength,
+    setSelectedLoan: setContextSelectedLoan,
+  } = useLoan();
   const navigate = useNavigate();
-  
-  // Adjust loan amounts based on requested amount
+
   useEffect(() => {
-    // Always ensure we have loans to display, even without a requested amount
-    if (!requestedAmount || requestedAmount === "") {
-      setAdjustedLoans(loans);
-      return;
-    }
-    
-    // Format currency for display
-    const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(amount);
-    };
-    
-    // Create a copy of the loans with adjusted amounts
-    const adjusted = loans.map(loan => {
-      // Generate a random amount between min and max (±10%)
-      const randomFactor = Math.random() * 0.2 + 0.9; // Between 0.9 and 1.1
-      const baseAmount = parseFloat(requestedAmount.replace(/,/g, "")) || 5000;
-      const adjustedAmount = Math.round(baseAmount * randomFactor);
-      
-      return {
-        ...loan,
-        maxAmount: `$${formatCurrency(adjustedAmount)}`
-      };
-    });
-    
-    setAdjustedLoans(adjusted);
+    updateAdjustedLoans(requestedAmount);
   }, [requestedAmount]);
 
   // Filter loans based on search term and term length
   const filteredLoans = adjustedLoans.filter((loan) => {
     const searchLower = searchTerm.toLowerCase();
-    
+
     // Check if the loan matches the search term
-    const matchesSearch = searchTerm === "" || 
+    const matchesSearch =
+      searchTerm === "" ||
       loan.name.toLowerCase().includes(searchLower) ||
       loan.provider.toLowerCase().includes(searchLower) ||
       loan.collateralRequired.toLowerCase().includes(searchLower) ||
       loan.status.toLowerCase().includes(searchLower);
-    
+
     // Check if the loan matches the term length
     const matchesTerm = isTermMatching(loan.term, termLength || "");
-    
+
+    console.log({ matchesSearch, matchesTerm, searchLower, searchTerm });
     return matchesSearch && matchesTerm;
   });
 
@@ -333,6 +188,8 @@ export function LoansTable() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  console.log({ paginatedLoans, sortedLoans, filteredLoans, adjustedLoans });
 
   // Handle sorting
   const handleSort = (column: SortableColumn) => {
@@ -364,14 +221,14 @@ export function LoansTable() {
     setSelectedLoan(loan);
     // Save the selected loan to context
     setContextSelectedLoan(loan);
-    
+
     // Show loading modal directly instead of application modal
     setIsLoadingModalOpen(true);
-    
+
     // Simulate processing time before redirecting to result page
     setTimeout(() => {
       setIsLoadingModalOpen(false);
-      navigate('/result');
+      navigate("/result");
     }, 0); // 4.5 seconds loading time
   };
 
@@ -382,8 +239,10 @@ export function LoansTable() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold dark:text-white">{selectedLoan.name}</h3>
-              <button 
+              <h3 className="text-xl font-bold dark:text-white">
+                {selectedLoan.name}
+              </h3>
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -391,45 +250,62 @@ export function LoansTable() {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-2">
-              <section className="border rounded-lg p-4 grid gap-2">  <span className=" text-gray-500 dark:text-gray-400">Provider:</span>
+              <section className="border rounded-lg p-4 grid gap-2">
+                {" "}
+                <span className=" text-gray-500 dark:text-gray-400">
+                  Provider:
+                </span>
                 <span className="col-span-3 font-medium dark:text-white">
                   <div className="flex items-center space-x-2 text-xl">
-                    <img 
-                      src={getProviderLogo(selectedLoan.provider)} 
-                      alt={`${selectedLoan.provider} logo`} 
+                    <img
+                      src={getProviderLogo(selectedLoan.provider)}
+                      alt={`${selectedLoan.provider} logo`}
                       className="w-6 h-6 object-contain"
                     />
                     <span>{selectedLoan.provider}</span>
                   </div>
-                </span></section>
-                <section className="border rounded-lg p-4 grid gap-2">
-                
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Interest Rate:</span>
-                <span className="col-span-3 font-medium dark:text-white text-xl">{selectedLoan.interestRate}</span>
-       
+                </span>
               </section>
-
-
+              <section className="border rounded-lg p-4 grid gap-2">
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">
+                  Interest Rate:
+                </span>
+                <span className="col-span-3 font-medium dark:text-white text-xl">
+                  {selectedLoan.interestRate}
+                </span>
+              </section>
             </div>
             <div className="space-y-3">
+              <div className="grid grid-cols-5 gap-2"></div>
+
               <div className="grid grid-cols-5 gap-2">
-              
-              </div>
-             
-              <div className="grid grid-cols-5 gap-2">
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Term:</span>
-                <span className="col-span-3 font-medium dark:text-white">{selectedLoan.term}</span>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Collateral Required:</span>
-                <span className="col-span-3 font-medium dark:text-white">{selectedLoan.collateralRequired}</span>
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">
+                  Term:
+                </span>
+                <span className="col-span-3 font-medium dark:text-white">
+                  {selectedLoan.term}
+                </span>
               </div>
               <div className="grid grid-cols-5 gap-2">
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Offered Amount:</span>
-                <span className="col-span-3 font-medium dark:text-white">{selectedLoan.maxAmount}</span>
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">
+                  Collateral Required:
+                </span>
+                <span className="col-span-3 font-medium dark:text-white">
+                  {selectedLoan.collateralRequired}
+                </span>
               </div>
               <div className="grid grid-cols-5 gap-2">
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Status:</span>
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">
+                  Offered Amount:
+                </span>
+                <span className="col-span-3 font-medium dark:text-white">
+                  {selectedLoan.maxAmount}
+                </span>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">
+                  Status:
+                </span>
                 <span className="col-span-3">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -450,7 +326,7 @@ export function LoansTable() {
               </div>
             </div>
             <div className="mt-6 flex flex-col justify-end gap-2">
-            {selectedLoan.status === "available" && (
+              {selectedLoan.status === "available" && (
                 <a
                   onClick={() => {
                     setIsModalOpen(false);
@@ -458,7 +334,7 @@ export function LoansTable() {
                   }}
                   className="px-4 py-2 bg-blue-500 text-white rounded-md text-center hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer"
                 >
-          Claim Offer
+                  Claim Offer
                 </a>
               )}
               <a
@@ -477,8 +353,12 @@ export function LoansTable() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <h3 className="text-xl font-bold mb-2 dark:text-white">Processing Your Application</h3>
-            <p className="text-gray-600 dark:text-gray-400">Please wait while we process your loan application...</p>
+            <h3 className="text-xl font-bold mb-2 dark:text-white">
+              Processing Your Application
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Please wait while we process your loan application...
+            </p>
           </div>
         </div>
       )}
@@ -512,8 +392,8 @@ export function LoansTable() {
         {termLength && (
           <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-md">
             <span className="text-blue-700 dark:text-blue-300">
-              {parseInt(termLength) === 1 
-                ? "Showing loans with 1 month term" 
+              {parseInt(termLength) === 1
+                ? "Showing loans with 1 month term"
                 : `Showing loans with ${termLength} month term`}
             </span>
           </div>
@@ -526,37 +406,37 @@ export function LoansTable() {
           <TableHeader>
             <TableRow className="bg-gray-50 dark:bg-gray-800">
               <TableHead className="font-medium">Provider</TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("name")}
               >
                 Name {getSortIcon("name")}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("interestRate")}
               >
                 Interest Rate {getSortIcon("interestRate")}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("term")}
               >
                 Term {getSortIcon("term")}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("collateralRequired")}
               >
                 Collateral {getSortIcon("collateralRequired")}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("maxAmount")}
               >
                 Max Amount {getSortIcon("maxAmount")}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="font-medium cursor-pointer"
                 onClick={() => handleSort("status")}
               >
@@ -569,24 +449,26 @@ export function LoansTable() {
             {paginatedLoans.length > 0 ? (
               paginatedLoans.map((loan) => {
                 // Check if this loan matches the selected term length
-                const isMatchingTerm = termLength ? isTermMatching(loan.term, termLength) : false;
-                
+                const isMatchingTerm = termLength
+                  ? isTermMatching(loan.term, termLength)
+                  : false;
+
                 return (
-                  <TableRow 
-                    key={loan.id} 
+                  <TableRow
+                    key={loan.id}
                     onClick={() => {
                       setSelectedLoan(loan);
                       setIsModalOpen(true);
                     }}
                     className={`border-b transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer ${
-                      isMatchingTerm ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                      isMatchingTerm ? "bg-blue-50 dark:bg-blue-900/10" : ""
                     }`}
                   >
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <img 
-                          src={getProviderLogo(loan.provider)} 
-                          alt={`${loan.provider} logo`} 
+                        <img
+                          src={getProviderLogo(loan.provider)}
+                          alt={`${loan.provider} logo`}
                           className="w-6 h-6 object-contain"
                         />
                         <span>{loan.provider}</span>
@@ -615,10 +497,7 @@ export function LoansTable() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <button
-                      
-                        className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                      >
+                      <button className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                         View Details
                       </button>
                     </TableCell>
@@ -629,23 +508,25 @@ export function LoansTable() {
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-12 w-12 text-gray-400 dark:text-gray-600" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400 dark:text-gray-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={1.5} 
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">No matching loans found</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-lg">
+                      No matching loans found
+                    </p>
                     {termLength && (
-                      <button 
+                      <button
                         onClick={() => window.location.reload()}
                         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                       >
@@ -696,7 +577,9 @@ export function LoansTable() {
               </button>
             ))}
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
               disabled={currentPage === totalPages}
               className={`px-3 py-1 rounded-md ${
                 currentPage === totalPages
