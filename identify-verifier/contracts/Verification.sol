@@ -39,6 +39,8 @@ contract LoanOffer is Ownable {
     mapping(address => Lender) public lenders;
 
     event PublicKeyRegistered(address provider, bytes32 publicKey);
+    event UserAdded(address indexed user, uint256 nonce);
+    
     /// @notice Address used to validate whitelisted addresses
 
     constructor() Ownable(msg.sender) {
@@ -51,6 +53,8 @@ contract LoanOffer is Ownable {
 
         users[msg.sender].walletAddress = msg.sender;
         users[msg.sender].nonce = UNCLAIMED_OFFER_NONCE;
+
+        emit UserAdded(msg.sender, UNCLAIMED_OFFER_NONCE);
     }
 
 
@@ -154,3 +158,4 @@ contract LoanOffer is Ownable {
         // require(verifyAddressSigner(signature), "Computer says no.");
     // }
 }
+
