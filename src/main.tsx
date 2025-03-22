@@ -8,6 +8,8 @@ import Apply from "./Apply.tsx";
 import Application from "./Application.tsx";
 import Success from "./Success.tsx";
 import { LoanProvider } from "./context/LoanContext.tsx";
+import { IdentityProvider } from './context/IdentityContext'
+import React from "react";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add('dark')
@@ -27,7 +29,9 @@ const root = document.getElementById("root");
 
 if (root) {
   ReactDOM.createRoot(root).render(
+
     <LoanProvider>
+           <IdentityProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
@@ -41,7 +45,9 @@ if (root) {
           <Route path="/identity" element={<Identity />} />
         </Routes>
       </BrowserRouter>
+      </IdentityProvider>
     </LoanProvider>
+
   );
 } else {
   console.error("Root element not found");
