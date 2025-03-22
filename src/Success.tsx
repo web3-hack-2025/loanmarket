@@ -7,7 +7,16 @@ import { getProviderLogo } from "./components/loans-table";
 export function Success() {
   const navigate = useNavigate();
   // Get loan information from context
-  const { requestedAmount, termLength, selectedLoan, addCompletedLoan } = useLoan();
+  const { 
+    requestedAmount, 
+    termLength, 
+    selectedLoan, 
+    formatCurrency,
+    getTotalInterest,
+    getTotalRepayment,
+    getInterestRateDecimal,
+    addCompletedLoan
+  } = useLoan();
 
   // Animation states
   const [showSuccessText, setShowSuccessText] = useState(false);
@@ -59,12 +68,6 @@ export function Success() {
       clearTimeout(contentTimer);
     };
   }, []);
-
-  // Get interest rate as a decimal
-  const getInterestRateDecimal = () => {
-    if (!selectedLoan?.interestRate) return 0.035; // Default to 3.5%
-    return parseFloat(selectedLoan.interestRate.replace(/%/g, "")) / 100;
-  };
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -158,13 +161,7 @@ export function Success() {
               <div>
                 <p className="text-gray-600 dark:text-gray-400">Loan Amount</p>
                 <p className="font-medium dark:text-white">
-                  $
-                  {requestedAmount
-                    ? Number(requestedAmount).toLocaleString("en-US", {
-                        maximumFractionDigits: 2,
-                      })
-                    : "N/A"}{" "}
-                  NZDD
+                  ${requestedAmount ? formatCurrency(parseFloat(requestedAmount)) : "N/A"} NZDD
                 </p>
               </div>
               <div>
@@ -188,14 +185,10 @@ export function Success() {
                   Monthly Payment
                 </p>
                 <p className="font-medium dark:text-white">
-                  $
-                  {requestedAmount && termLength
-                    ? Number(
-                        Number(requestedAmount) / Number(termLength) +
-                          Number(requestedAmount) * getInterestRateDecimal()
-                      ).toLocaleString("en-US", { maximumFractionDigits: 2 })
-                    : "0.00"}{" "}
-                  NZDD
+                  ${requestedAmount && termLength
+                    ? formatCurrency(Number(requestedAmount) / Number(termLength) +
+                      Number(requestedAmount) * getInterestRateDecimal())
+                    : "0.00"} NZDD
                 </p>
               </div>
               <div>
@@ -229,13 +222,7 @@ export function Success() {
                     Principal Amount:
                   </span>
                   <span className="font-medium dark:text-white">
-                    $
-                    {requestedAmount
-                      ? Number(requestedAmount).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })
-                      : "0.00"}{" "}
-                    NZDD
+                    ${requestedAmount ? formatCurrency(parseFloat(requestedAmount)) : "0.00"} NZDD
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -243,15 +230,7 @@ export function Success() {
                     Total Interest:
                   </span>
                   <span className="font-medium dark:text-white">
-                    $
-                    {requestedAmount && termLength
-                      ? Number(
-                          Number(requestedAmount) *
-                            getInterestRateDecimal() *
-                            Number(termLength)
-                        ).toLocaleString("en-US", { maximumFractionDigits: 2 })
-                      : "0.00"}{" "}
-                    NZDD
+                    ${formatCurrency(getTotalInterest())} NZDD
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -259,16 +238,7 @@ export function Success() {
                     Total Repayment:
                   </span>
                   <span className="font-semibold text-blue-600 dark:text-blue-400">
-                    $
-                    {requestedAmount && termLength
-                      ? Number(
-                          Number(requestedAmount) +
-                            Number(requestedAmount) *
-                              getInterestRateDecimal() *
-                              Number(termLength)
-                        ).toLocaleString("en-US", { maximumFractionDigits: 2 })
-                      : "0.00"}{" "}
-                    NZDD
+                    ${formatCurrency(getTotalRepayment())} NZDD
                   </span>
                 </div>
               </div>

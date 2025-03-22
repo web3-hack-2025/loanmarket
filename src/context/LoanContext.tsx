@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useState, ReactNode, useMemo, useEffect } from "react";
 
 interface Loan {
   id: string;
@@ -14,7 +14,7 @@ interface Loan {
   dateApproved?: string;
 }
 
-interface LoanContextType {
+export interface LoanContextType {
   requestedAmount: string;
   setRequestedAmount: (amount: string) => void;
   termLength: string;
@@ -26,6 +26,13 @@ interface LoanContextType {
   completedLoans: Loan[];
   addCompletedLoan: (loan: Loan) => void;
   removeCompletedLoan: (loanId: string) => void;
+  getMonthlyPayment: () => number;
+  getTotalInterest: () => number;
+  getTotalRepayment: () => number;
+  getPrincipalPayment: () => number;
+  getInterestPayment: () => number;
+  getInterestRateDecimal: () => number;
+  formatCurrency: (value: number) => string;
 }
 
 const LoanContext = createContext<LoanContextType | undefined>(undefined);
@@ -58,16 +65,37 @@ export function LoanProvider({ children }: { children: ReactNode }) {
     }
   }, [completedLoans]);
 
+  // Format numeric values as currency
+  const formatCurrency = (value: number): string => {
+    return value.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Helper to get the amount as a number
+  const getAmountAsNumber = (): number => {
+    return parseFloat(requestedAmount.replace(/[^0-9.]/g, "")) || 0;
+  };
+
+  // Helper to get the term as a number
+  const getTermAsNumber = (): number => {
+    return parseInt(termLength) || 1;
+  };
+
+  // Helper to get interest rate as a decimal
+  const getInterestRateDecimal = (): number => {
+    if (!selectedLoan?.interestRate) return 0.035; // Default 3.5%
+    return parseFloat(selectedLoan.interestRate.replace(/%/g, "")) / 100;
+  };
+
   // Calculate the minimum amount (10% less than requested)
   const getMinAmount = (): number => {
-    const numericAmount = parseFloat(requestedAmount.replace(/,/g, "")) || 0;
-    return numericAmount * 0.9;
+    return getAmountAsNumber() * 0.9;
   };
 
   // Calculate the maximum amount (10% more than requested)
   const getMaxAmount = (): number => {
-    const numericAmount = parseFloat(requestedAmount.replace(/,/g, "")) || 0;
-    return numericAmount * 1.1;
+    return getAmountAsNumber() * 1.1;
   };
 
   // Add a completed loan to the array
@@ -100,21 +128,58 @@ export function LoanProvider({ children }: { children: ReactNode }) {
     setCompletedLoans(prevLoans => prevLoans.filter(loan => loan.id !== loanId));
   };
 
+  // Calculate principal payment per month
+  const getPrincipalPayment = (): number => {
+    return getAmountAsNumber() / getTermAsNumber();
+  };
+
+  // Calculate monthly interest payment
+  const getInterestPayment = (): number => {
+    return getAmountAsNumber() * getInterestRateDecimal();
+  };
+
+  // Calculate total monthly payment (principal + interest)
+  const getMonthlyPayment = (): number => {
+    return getPrincipalPayment() + getInterestPayment();
+  };
+
+  // Calculate total interest over loan term
+  const getTotalInterest = (): number => {
+    return getAmountAsNumber() * getInterestRateDecimal() * getTermAsNumber();
+  };
+
+  // Calculate total repayment amount (principal + total interest)
+  const getTotalRepayment = (): number => {
+    return getAmountAsNumber() + getTotalInterest();
+  };
+
+  const contextValue = useMemo(
+    () => ({
+      requestedAmount,
+      setRequestedAmount,
+      termLength,
+      setTermLength,
+      selectedLoan,
+      setSelectedLoan,
+      getMinAmount,
+      getMaxAmount,
+      getMonthlyPayment,
+      getTotalInterest,
+      getTotalRepayment,
+      getPrincipalPayment,
+      getInterestPayment,
+      getInterestRateDecimal,
+      formatCurrency,
+      completedLoans,
+      addCompletedLoan,
+      removeCompletedLoan,
+    }),
+    [requestedAmount, termLength, selectedLoan, getMinAmount, getMaxAmount, getMonthlyPayment, getTotalInterest, getTotalRepayment, getPrincipalPayment, getInterestPayment, getInterestRateDecimal, completedLoans, addCompletedLoan]
+  );
+
   return (
     <LoanContext.Provider
-      value={{
-        requestedAmount,
-        setRequestedAmount,
-        termLength,
-        setTermLength,
-        selectedLoan,
-        setSelectedLoan,
-        getMinAmount,
-        getMaxAmount,
-        completedLoans,
-        addCompletedLoan,
-        removeCompletedLoan,
-      }}
+      value={contextValue}
     >
       {children}
     </LoanContext.Provider>

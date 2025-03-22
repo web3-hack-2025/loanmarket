@@ -23,6 +23,12 @@ function Result() {
     termLength: contextTermLength,
     selectedLoan,
     setSelectedLoan,
+    formatCurrency,
+    getMonthlyPayment,
+    getTotalInterest,
+    getTotalRepayment,
+    getPrincipalPayment,
+    getInterestPayment,
   } = useLoan();
   const navigate = useNavigate();
 
@@ -64,8 +70,8 @@ function Result() {
     // Set the selected loan in context
     setSelectedLoan(defaultLoan);
 
-    // Navigate to success page
-    navigate("/success");
+    // Navigate to execute page instead of success
+    navigate("/execute");
   };
 
   return (
@@ -282,11 +288,7 @@ function Result() {
                         Principal:
                       </span>
                       <span className="font-medium dark:text-white">
-                        $
-                        {(+loanAmount / +loanTerm).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        NZDD
+                        ${formatCurrency(getPrincipalPayment())} NZDD
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -294,18 +296,7 @@ function Result() {
                         Interest ({selectedLoan?.interestRate || "3.5%"}):
                       </span>
                       <span className="font-medium dark:text-white">
-                        $
-                        {Number(
-                          +loanAmount *
-                            (selectedLoan?.interestRate
-                              ? parseFloat(
-                                  selectedLoan.interestRate.replace(/%/g, "")
-                                ) / 100
-                              : 0.035)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        NZDD
+                        ${formatCurrency(getInterestPayment())} NZDD
                       </span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -313,19 +304,7 @@ function Result() {
                         Total Monthly Payment:
                       </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        $
-                        {Number(
-                          Number(loanAmount) / Number(loanTerm) +
-                            Number(loanAmount) *
-                              (selectedLoan?.interestRate
-                                ? parseFloat(
-                                    selectedLoan.interestRate.replace(/%/g, "")
-                                  ) / 100
-                                : 0.035)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        NZDD
+                        ${formatCurrency(getMonthlyPayment())} NZDD
                       </span>
                     </div>
                   </div>
@@ -341,8 +320,7 @@ function Result() {
                         Principal Amount:
                       </span>
                       <span className="font-medium dark:text-white">
-                        $
-                        {Number(loanAmount).toLocaleString("en-US", {
+                        ${Number(loanAmount).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -353,19 +331,7 @@ function Result() {
                         Total Interest:
                       </span>
                       <span className="font-medium dark:text-white">
-                        $
-                        {Number(
-                          Number(loanAmount) *
-                            (selectedLoan?.interestRate
-                              ? parseFloat(
-                                  selectedLoan.interestRate.replace(/%/g, "")
-                                ) / 100
-                              : 0.035) *
-                            Number(loanTerm)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        NZDD
+                        ${formatCurrency(getTotalInterest())} NZDD
                       </span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -373,20 +339,7 @@ function Result() {
                         Total Repayment:
                       </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        $
-                        {Number(
-                          Number(loanAmount) +
-                            Number(loanAmount) *
-                              (selectedLoan?.interestRate
-                                ? parseFloat(
-                                    selectedLoan.interestRate.replace(/%/g, "")
-                                  ) / 100
-                                : 0.035) *
-                              Number(loanTerm)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        NZDD
+                        ${formatCurrency(getTotalRepayment())} NZDD
                       </span>
                     </div>
                   </div>
