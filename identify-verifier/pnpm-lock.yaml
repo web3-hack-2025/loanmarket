@@ -23,6 +23,9 @@ importers:
       ethers:
         specifier: ^6.13.5
         version: 6.13.5
+      secp256k1:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@nomicfoundation/hardhat-chai-matchers':
         specifier: ^2.0.8
@@ -1868,6 +1871,10 @@ packages:
 
   secp256k1@4.0.4:
     resolution: {integrity: sha512-6JfvwvjUOn8F/jUoBY2Q1v5WY5XS+rj8qSe0v8Y4ezH4InLgTEeOOPQsRll9OV429Pvo6BCHGavIyJfr3TAhsw==}
+    engines: {node: '>=18.0.0'}
+
+  secp256k1@5.0.1:
+    resolution: {integrity: sha512-lDFs9AAIaWP9UCdtWrotXWWF9t8PWgQDcxqgAnpM9rMqxb3Oaq2J0thzPVSxBwdJgyQtkU/sYtFtbM1RSt/iYA==}
     engines: {node: '>=18.0.0'}
 
   semver@5.7.2:
@@ -4446,6 +4453,12 @@ snapshots:
   scrypt-js@3.0.1: {}
 
   secp256k1@4.0.4:
+    dependencies:
+      elliptic: 6.6.1
+      node-addon-api: 5.1.0
+      node-gyp-build: 4.8.4
+
+  secp256k1@5.0.1:
     dependencies:
       elliptic: 6.6.1
       node-addon-api: 5.1.0

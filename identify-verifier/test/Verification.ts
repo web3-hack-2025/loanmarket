@@ -39,17 +39,24 @@ describe("LoanOffer", function () {
 
     });
 
-    const publicASBKey = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    const publicANZKey = "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
     it("Should allow a bank to be added to the system", async function() 
     {
-        await expect(contract.connect(bank1).addLoanProviderToSystem("ASB", publicASBKey))
+        const { ethers } = require("ethers");
+
+        // Generate random wallet (private and public key)
+        const walletASB = ethers.Wallet.createRandom();
+        const walletANZ = ethers.Wallet.createRandom();
+
+        // Output the private and public keys
+        console.log("Private Key:", walletANZ.privateKey);
+        console.log("Public Key:", walletANZ.publicKey);
+        await expect(contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey))
         .to.emit(contract, "PublicKeyRegistered")
-        .withArgs(bank1.address, publicASBKey);
+        .withArgs(bank1.address, walletASB.publicKey);
 
         try
         {
-            await contract.connect(bank1).addLoanProviderToSystem("ASB", publicASBKey);
+            await contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
             assert.fail("Should Throw")
         }
         catch (err)
@@ -57,15 +64,20 @@ describe("LoanOffer", function () {
             // assert.equal(err.message, 'User already registered')
         }
 
-        await expect(contract.connect(bank2).addLoanProviderToSystem("ANZ", publicANZKey))
+        await expect(contract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey))
         .to.emit(contract, "PublicKeyRegistered")
-        .withArgs(bank2.address, publicANZKey);
+        .withArgs(bank2.address, walletANZ.publicKey);
     });
 
     it("Should allow a bank to make an offer to an existing user.", async function() 
     {
-        await contract.connect(bank1).addLoanProviderToSystem("ASB", publicASBKey);
-        await contract.connect(bank2).addLoanProviderToSystem("ANZ", publicANZKey);
+        const { ethers } = require("ethers");
+
+        // Generate random wallet (private and public key)
+        const walletASB = ethers.Wallet.createRandom();
+        const walletANZ = ethers.Wallet.createRandom();
+        await contract.connect(bank1).addLoanProviderToSystem("ASB", walletASB.publicKey);
+        await contract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey);
         await contract.connect(user1).addUserToSystem();
         await contract.connect(user2).addUserToSystem();
         let expiryDateUnixSeconds: number = Date.now() + 1000 * 180;
@@ -77,9 +89,7 @@ describe("LoanOffer", function () {
         );
         
         // Sign the offer hash
-        const privateKey = "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"; 
-        const wallet = new hre.ethers.Wallet(privateKey);
-        const signature = await wallet.signMessage(hre.ethers.getBytes(offerHash));
+        const signature = await walletASB.signMessage(hre.ethers.getBytes(offerHash));
         try
         {
             await contract.connect(bank1).makeOffer("ASB", 1000000, user1.address, expiryDateUnixSeconds, 
