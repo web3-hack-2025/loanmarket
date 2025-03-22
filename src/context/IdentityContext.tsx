@@ -56,6 +56,7 @@ interface IdentityContextType {
   identities: ExistingIdentity[];
   addIdentity: (identity: Omit<ExistingIdentity, "id">) => void;
   updateIdentity: (id: string, identity: Partial<ExistingIdentity>) => void;
+  removeIdentity: (id: string) => void; // Add this line
 }
 
 // Create the context
@@ -87,9 +88,15 @@ export function IdentityProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const removeIdentity = (id: string) => {
+    setIdentities((prevIdentities) =>
+      prevIdentities.filter((identity) => identity.id !== id)
+    );
+  };
+
   return (
     <IdentityContext.Provider
-      value={{ identities, addIdentity, updateIdentity }}
+      value={{ identities, addIdentity, updateIdentity, removeIdentity }}
     >
       {children}
     </IdentityContext.Provider>

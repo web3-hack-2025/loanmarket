@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import ShaderBackground2 from "./components/ShaderBackground2"
 import { ConnectWalletButton } from "@/components/web3/simplekit";
-import { buttonVariants } from "./components/ui/button";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { useState } from "react";
