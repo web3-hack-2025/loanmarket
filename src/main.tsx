@@ -10,6 +10,7 @@ import Success from "./Success.tsx";
 import { LoanProvider } from "./context/LoanContext.tsx";
 import { IdentityProvider } from './context/IdentityContext'
 import React from "react";
+import Landing from "./Landing.tsx";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add('dark')
@@ -34,7 +35,7 @@ if (root) {
            <IdentityProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<App />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/loan" element={<App />} />
 
           <Route path="/apply" element={<Apply />} />
