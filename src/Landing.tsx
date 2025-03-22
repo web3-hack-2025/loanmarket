@@ -66,17 +66,17 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                quote: "This platform revolutionized how we manage our treasury. The rates are unmatched in the traditional banking sector.",
+                quote: "This platform revolutionized how we access loans. The application process is so streamlined compared to traditional banks.",
                 author: "Russel Bloxwich",
                 role: "Developer @ Coalesce"
               },
               {
-                quote: "The security features gave us confidence to move significant assets to the platform. Best decision we've made.",
+                quote: "The borrowing experience was incredibly smooth. We secured funding for our project in days instead of months.",
                 author: "Jasper Miller-Waugh",
                 role: "Creative Technologist @ University of Auckland"
               },
               {
-                quote: "We've saved over $300K in fees compared to our previous banking relationships. The transparency is refreshing.",
+                quote: "We've never had an easier time getting financing. The entire borrowing process from application to funding took less than 48 hours.",
                 author: "Connor Hare",
                 role: "Vice President, UoA Maker Club"
               }
