@@ -5,6 +5,8 @@ import { useLoan } from "./hooks/useLoan";
 import CredentialModal from "./components/credentials/CredentialModal";
 import { useIdentity } from "./context/IdentityContext";
 import { ConnectWalletButton } from "./components/web3/simplekit";
+import axios from "axios";
+import { useAdjustedLoans } from "./context/AdjustedLoansContext";
 
 // Progress indicator component
 const ProgressIndicator = ({ currentStep }: { currentStep: number }) => {
@@ -202,7 +204,7 @@ const IdentityTypeStep = ({
           <div className="flex justify-start pt-4">
             <button
               onClick={onNext}
-              className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 cursor-pointer"
             >
               Continue
             </button>
@@ -364,7 +366,7 @@ const IdentityCredentialsStep = ({
         <button
           onClick={onNext}
           disabled={selectedIdentityIds.length === 0}
-          className={`px-4 py-2 rounded-md text-white flex-1 ${
+          className={`px-4 py-2 rounded-md text-white flex-1 cursor-pointer ${
             selectedIdentityIds.length > 0
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-blue-400 cursor-not-allowed"
@@ -374,7 +376,7 @@ const IdentityCredentialsStep = ({
         </button>
         <button
           onClick={onPrev}
-          className="px-4 flex-1 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="cursor-pointer px-4 flex-1 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           Back
         </button>
@@ -413,22 +415,21 @@ const ApplicationDetailsStep = ({
     // If the loan amount is changing, format with commas and update the context
     if (name === "loanAmount") {
       // Remove non-numeric characters
-      const numericValue = value.replace(/[^0-9]/g, '');
-      
+      const numericValue = value.replace(/[^0-9]/g, "");
+
       // Format with commas
-      const formattedValue = numericValue === '' 
-        ? '' 
-        : Number(numericValue).toLocaleString('en-US');
-      
+      const formattedValue =
+        numericValue === "" ? "" : Number(numericValue).toLocaleString("en-US");
+
       // Update the loan amount in context (without commas for calculations)
       setRequestedAmount(numericValue);
-      
+
       // Update the form state with formatted value
       setPersonalInfo({
         ...personalInfo,
         [name]: formattedValue,
       });
-      
+
       return;
     }
 
@@ -596,7 +597,7 @@ const ApplicationDetailsStep = ({
             type="button"
             onClick={onNext}
             disabled={!isFormValid()}
-            className={`px-4 py-2 rounded-md text-white w-full flex-1 ${
+            className={`px-4 py-2 rounded-md text-white w-full flex-1 cursor-pointer ${
               isFormValid()
                 ? "bg-blue-600 hover:bg-blue-700"
                 : "bg-blue-400 cursor-not-allowed"
@@ -607,7 +608,7 @@ const ApplicationDetailsStep = ({
           <button
             type="button"
             onClick={onPrev}
-            className="px-4 py-2 mr-2 flex-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+            className="px-4 py-2 mr-2 flex-1 border border-gray-300 rounded-md cursor-pointer text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             Back
           </button>
@@ -694,7 +695,7 @@ const ConfirmationStep = ({
           </div>
         </div>
 
-        <div >
+        <div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
             Identity Verification
           </h3>
@@ -760,14 +761,14 @@ const ConfirmationStep = ({
         <button
           type="button"
           onClick={onSubmit}
-          className="flex-1 px-6 py-2 bg-blue-600 w-full text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="cursor-pointer flex-1 px-6 py-2 bg-blue-600 w-full text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Submit Application
         </button>
         <button
           type="button"
           onClick={onPrev}
-          className="flex-1 px-4 py-2 border w-full border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="cursor-pointer flex-1 px-4 py-2 border w-full border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           Edit Application
         </button>
@@ -791,6 +792,8 @@ function Apply() {
     otherReasonText: "",
   });
 
+  const { setFetchedAdjustedLoans } = useAdjustedLoans();
+
   // Get the navigate function from React Router
   const navigate = useNavigate();
 
@@ -811,14 +814,42 @@ function Apply() {
   // Handle submit application
   const submitApplication = () => {
     // Save the loan amount to context before navigating
-    setRequestedAmount(personalInfo.loanAmount.replace(/,/g, ''));
+    setRequestedAmount(personalInfo.loanAmount.replace(/,/g, ""));
     // Save the term length to context before navigating
     setTermLength(personalInfo.termLength);
 
-    // TO DO: Implement application submission logic
-    console.log("Application submitted!");
-    // Navigate to the result page
-    navigate("/offers");
+    const credentials = selectedIdentityIds.reduce((acc, id) => {
+      acc[id] = { type: "credential", value: id };
+      return acc;
+    }, {} as Record<string, { type: string; value: string }>);
+
+    const loanDetails = {
+      amountRequested: parseFloat(personalInfo.loanAmount.replace(/,/g, "")),
+      reason:
+        personalInfo.loanReason === "Other"
+          ? personalInfo.otherReasonText
+          : personalInfo.loanReason,
+    };
+
+    axios
+      .post("https://loanmarket-backend.host.qrl.nz/offers", {
+        credentials,
+        loanDetails,
+      })
+      .then((response) => {
+        setFetchedAdjustedLoans(
+          [...(response.data.offers || []), "yeet"],
+          personalInfo.termLength + " months"
+        );
+        console.log("Application submitted successfully:", response.data);
+      })
+      .catch((error) => {
+        setFetchedAdjustedLoans([], personalInfo.termLength + " months");
+        console.error("Error submitting application:", error);
+      })
+      .finally(() => {
+        navigate("/offers");
+      });
   };
 
   // Render current step
@@ -866,10 +897,10 @@ function Apply() {
 
   return (
     <div className="max-h-screen ">
-        <div className="p-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-tight">Apply for a Loan</h1>
-          <ConnectWalletButton />
-          </div>
+      <div className="p-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold tracking-tight">Apply for a Loan</h1>
+        <ConnectWalletButton />
+      </div>
       <div className="flex border-t">
         <div className="p-4 h-[calc(100vh-96px)] border-r max-md:hidden">
           {" "}

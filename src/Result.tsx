@@ -456,12 +456,12 @@ function Result() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md font-medium transition-colors"
+                    className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white py-3 px-6 rounded-md font-medium transition-colors"
                     onClick={handleAcceptOffer}
                   >
                     Accept Offer & Continue
                   </button>
-                  <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-md font-medium border border-gray-300 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:border-gray-600">
+                  <button className="flex-1 cursor-pointer bg-white hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-md font-medium border border-gray-300 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:border-gray-600">
                     Save for Later
                   </button>
                 </div>
