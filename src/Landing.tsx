@@ -1,10 +1,27 @@
+import { useNavigate } from "react-router-dom";
 import ShaderBackground2 from "./components/ShaderBackground2"
+import { ConnectWalletButton } from "@/components/web3/simplekit";
 
 const Landing = () => {
+  const navigate = useNavigate();
+  
+  function onConnectWallet() {
+    console.log("Connect Wallet");
+    // go to loan
+    navigate("/loan");
+  }
+
   return (
     <>
       <ShaderBackground2/>
-      <section className="z-[20] absolute inset-0 flex flex-col items-center justify-center"><div className=" flex flex-col items-center justify-center p-12 "><h1 className="text-[5rem] font-bold tracking-tight">The future of finance</h1><p className="text-[1.5rem] mb-8 ">Loan market can help you get better rates on financing</p> <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-bold text-lg hover:opacity-90 transition-all">Connect Wallet</button></div></section>
+      <section className="z-[20] absolute inset-0 flex flex-col items-center justify-center">
+        <div className=" flex flex-col items-center justify-center p-12 ">
+          <h1 className="text-[5rem] font-bold tracking-tight">The future of finance</h1>
+          <p className="text-[1.5rem] mb-8 ">Broker can help you get better rates on financing</p>
+          <ConnectWalletButton variant="fancy" onConnectedClick={onConnectWallet}/>
+
+        </div>
+      </section>
       
       {/* Features Section */}
       <section className=" mt-[-40rem] relative z-10 w-full bg-gradient-to-b from-transparent to-black/90 pt-[70vh] pb-32">
@@ -103,7 +120,8 @@ const Landing = () => {
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">Join thousands of individuals and businesses who have already discovered the future of finance.</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-bold text-lg hover:opacity-90 transition-all">Connect Wallet</button>
+            <ConnectWalletButton variant="fancy" onConnectedClick={onConnectWallet}/>
+
             <button className="px-8 py-4 bg-transparent border border-white/20 rounded-lg font-bold text-lg hover:bg-white/5 transition-all">Learn More</button>
           </div>
         </div>

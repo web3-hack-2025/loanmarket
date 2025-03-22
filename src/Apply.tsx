@@ -4,6 +4,7 @@ import { useLoan } from "./hooks/useLoan";
 
 import CredentialModal from "./components/credentials/CredentialModal";
 import { useIdentity } from "./context/IdentityContext";
+import { ConnectWalletButton } from "./components/web3/simplekit";
 
 // Progress indicator component
 const ProgressIndicator = ({ currentStep }: { currentStep: number }) => {
@@ -848,9 +849,10 @@ function Apply() {
 
   return (
     <div className="max-h-screen ">
-      <div className="m-6">
-        <h1 className="text-2xl font-bold tracking-tight">Apply for a Loan</h1>
-      </div>
+        <div className="p-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold tracking-tight">Apply for a Loan</h1>
+          <ConnectWalletButton />
+          </div>
       <div className="flex border-t">
         <div className="p-4 h-[calc(100vh-96px)] border-r">
           {" "}

@@ -10,7 +10,7 @@ import {
   SimpleKitModalFooter,
   SimpleKitModalHeader,
   SimpleKitModalTitle,
-} from "@/components/simplekit-modal";
+} from "@/components/web3/simplekit-modal";
 import { Button } from "@/components/ui/button";
 import {
   type Connector,
@@ -22,7 +22,8 @@ import {
   useBalance,
 } from "wagmi";
 import { formatEther } from "viem";
-import { Check, ChevronLeft, Copy, RotateCcw } from "lucide-react";
+import { ArrowRightCircle, Check, ChevronLeft, Copy, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const MODAL_CLOSE_DURATION = 320;
 
@@ -84,19 +85,30 @@ function SimpleKitProvider(props: { children: React.ReactNode }) {
   );
 }
 
-function ConnectWalletButton() {
+export interface ConnectWalletButtonProps {
+  className?: string;
+  variant?: "default" | "fancy";
+  onConnectedClick?: (simplekit: ReturnType<typeof useSimpleKit>) => void;
+}
+
+function ConnectWalletButton({className, variant, onConnectedClick}: ConnectWalletButtonProps) {
   const simplekit = useSimpleKit();
   const { address } = useAccount();
   const { data: ensName } = useEnsName({ address });
   const { data: ensAvatar } = useEnsAvatar({ name: ensName! });
 
+  const additionalStyles = {
+    "default": "bg-accent text-white",
+    "fancy": "h-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-bold text-lg text-white hover:opacity-90 transition-all",
+  }[variant ?? "default"];
+
   return (
-    <Button onClick={simplekit.toggleModal} className="rounded-xl">
+    <Button onClick={()=>((onConnectedClick && simplekit.isConnected) ? onConnectedClick(simplekit) : simplekit.toggleModal())} size={"lg"} className={cn("rounded-lg " , additionalStyles, className)}>
       {simplekit.isConnected ? (
         <>
           {ensAvatar && <img src={ensAvatar} alt="ENS Avatar" />}
           {address && (
-            <span>{ensName ? `${ensName}` : simplekit.formattedAddress}</span>
+            <span>{ensName ? `${ensName}` : simplekit.formattedAddress}{onConnectedClick ? <ArrowRightCircle className="inline ml-4"/> : <></>}</span>
           )}
         </>
       ) : (
