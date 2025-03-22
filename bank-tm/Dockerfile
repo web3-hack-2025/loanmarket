@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 RUN corepack enable
 WORKDIR /app
-COPY ./backend/package.json ./backend/pnpm-lock.yaml ./
+COPY ./bank-tm/package.json ./bank-tm/pnpm-lock.yaml ./
 RUN pnpm i
-COPY ./backend .
+COPY ./bank-tm .
 ENTRYPOINT ["pnpm", "run", "dev"]
