@@ -60,8 +60,8 @@ const Landing = () => {
 
       <ShaderBackground2/>
       <section className="z-[20] absolute inset-0 flex flex-col items-center justify-center">
-        <div className=" flex flex-col items-center justify-center p-12 ">
-          <h1 className="text-[5rem] font-bold tracking-tight">The future of finance</h1>
+        <div className=" flex flex-col items-center justify-center p-12 mt-[200px] md:mt-0">
+          <h1 className="text-[5rem]  font-bold tracking-tight">The future of finance</h1>
           <p className="text-[1.5rem] mb-8 ">Broker can help you get better rates on financing</p>
           <ConnectWalletButton variant="fancy" onConnectedClick={onConnectWallet}/>
 
