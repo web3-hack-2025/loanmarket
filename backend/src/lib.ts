@@ -23,5 +23,25 @@ export const loansRequest = z.object({
   loanDetails,
 });
 
+export const bundleRequest = z.object({
+  credentials: z.record(z.string(), credential),
+  loanToken: z.string(),
+});
+
+export const loanRequest = z.object({
+  amountRequested: z.number(),
+  reason: z.string(),
+  score: z.number(),
+});
+
 export const errorResponse = <T extends string>(text: T) =>
   z.object({ error: z.literal(text) });
+
+export type OfferPayload = {
+  payout: number;
+  offerInterestRate: number;
+};
+
+export type CredentialPayload = {
+  score: number;
+};

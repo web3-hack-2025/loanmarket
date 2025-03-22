@@ -35,8 +35,8 @@ const app = Fastify({
 app.register(fastifySwagger, {
   openapi: {
     info: {
-      title: "SampleApi",
-      description: "Sample backend service",
+      title: "TrustAnchor",
+      description: "A sample API of a trust anchor",
       version: "1.0.0",
     },
     servers: [],
@@ -76,10 +76,11 @@ app.after(() => {
         return;
       }
 
-      const token = await new SignJWT()
+      const token = await new SignJWT({
+        score: Math.round(Math.random() * 10),
+      })
         .setProtectedHeader({
           alg: jwtAlgo,
-          score: Math.round(Math.random() * 10),
         })
         .sign(key);
 
@@ -103,5 +104,5 @@ app.after(() => {
 });
 
 app.listen({
-  port: 8081,
+  port: 8082,
 });
