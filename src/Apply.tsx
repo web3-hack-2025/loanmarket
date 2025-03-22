@@ -360,7 +360,7 @@ const IdentityCredentialsStep = ({
         onClose={() => setIsModalOpen(false)}
       />
 
-      <div className="flex justify-start gap-4 pt-4">
+      <div className="flex justify-start gap-4 pt-4 max-w-2xl">
         <button
           onClick={onNext}
           disabled={selectedIdentityIds.length === 0}
@@ -575,7 +575,7 @@ const ApplicationDetailsStep = ({
           </div>
         )}
 
-        <div className="flex justify-start pt-4 gap-4">
+        <div className="flex justify-start pt-4 gap-4 max-w-2xl">
           <button
             type="button"
             onClick={onNext}
@@ -740,7 +740,7 @@ const ConfirmationStep = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 gap-4">
+      <div className="flex max-w-2xl items-center justify-between pt-4  border-gray-200 dark:border-gray-700 gap-4">
         <button
           type="button"
           onClick={onSubmit}

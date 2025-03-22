@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Sidebar } from "./components/sidebar";
 
 interface ExistingIdentity {
   id: string;
@@ -20,25 +21,9 @@ function Identity() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
-  const [pageLoading, setPageLoading] = useState(true);
-  const [pageOpacity, setPageOpacity] = useState(0);
 
   useEffect(() => {
     document.title = "Identity Credentials | NZDD";
-    
-    // Simulate loading delay
-    const loadingTimer = setTimeout(() => {
-      setPageLoading(false);
-      
-      // Start fade-in animation after loading completes
-      const fadeInTimer = setTimeout(() => {
-        setPageOpacity(1);
-      }, 100);
-      
-      return () => clearTimeout(fadeInTimer);
-    }, 2000);
-    
-    return () => clearTimeout(loadingTimer);
   }, []);
 
   // Existing identities data
@@ -140,98 +125,8 @@ function Identity() {
   };
 
   return (
-    <div className={`flex h-screen ${pageLoading ? 'opacity-0' : `opacity-${pageOpacity}`} transition-opacity duration-1000`}>
-      <div className="group z-[10] hidden md:block bg-[#141618] border-r border-muted sticky top-0 h-screen overflow-hidden">
-        <div className="flex flex-col h-full">
-          <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">
-            <a className="outline-none" href="/">
-            <h1 className="text-2xl font-bold">Loan Market</h1>
-            </a>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
-            <nav className="space-y-3 mt-8 px-4">
-              <a
-                id="sidebar-item-home.dashboard"
-                aria-current="page"
-                className="group flex items-center py-2 hover:bg-hover relative text-[#0376c9] dark:text-default font-semibold active"
-                href="/"
-              >
-                <div className="flex justify-center items-center mr-2">
-                  <svg
-                    className="h-5 w-5 stroke-white"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 10L17.5 10M10 2.5L10 17.5M6.5 2.5H13.5C14.9001 2.5 15.6002 2.5 16.135 2.77248C16.6054 3.01217 16.9878 3.39462 17.2275 3.86502C17.5 4.3998 17.5 5.09987 17.5 6.5V13.5C17.5 14.9001 17.5 15.6002 17.2275 16.135C16.9878 16.6054 16.6054 16.9878 16.135 17.2275C15.6002 17.5 14.9001 17.5 13.5 17.5H6.5C5.09987 17.5 4.3998 17.5 3.86502 17.2275C3.39462 16.9878 3.01217 16.6054 2.77248 16.135C2.5 15.6002 2.5 14.9001 2.5 13.5V6.5C2.5 5.09987 2.5 4.3998 2.77248 3.86502C3.01217 3.39462 3.39462 3.01217 3.86502 2.77248C4.3998 2.5 5.09987 2.5 6.5 2.5Z"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></path>
-                  </svg>
-                </div>
-                <span className="truncate text-white">Dashboard</span>
-              </a>
-              <a
-                id="sidebar-item-loan"
-                className="group flex items-center py-2 hover:bg-hover relative text-white dark:text-default font-semibold"
-                href="/loan"
-              >
-                <div className="flex justify-center items-center mr-2">
-                  <svg
-                    className="h-5 w-5 "
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 10L17.5 10M10 2.5L10 17.5M6.5 2.5H13.5C14.9001 2.5 15.6002 2.5 16.135 2.77248C16.6054 3.01217 16.9878 3.39462 17.2275 3.86502C17.5 4.3998 17.5 5.09987 17.5 6.5V13.5C17.5 14.9001 17.5 15.6002 17.2275 16.135C16.9878 16.6054 16.6054 16.9878 16.135 17.2275C15.6002 17.5 14.9001 17.5 13.5 17.5H6.5C5.09987 17.5 4.3998 17.5 3.86502 17.2275C3.39462 16.9878 3.01217 16.6054 2.77248 16.135C2.5 15.6002 2.5 14.9001 2.5 13.5V6.5C2.5 5.09987 2.5 4.3998 2.77248 3.86502C3.01217 3.39462 3.39462 3.01217 3.86502 2.77248C4.3998 2.5 5.09987 2.5 6.5 2.5Z"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></path>
-                  </svg>
-                </div>
-                <span className="truncate">Loan</span>
-              </a>
-              <a
-                id="sidebar-item-identity"
-                className="group flex items-center py-2 hover:bg-hover relative text-white dark:text-default font-semibold"
-                href="/identity"
-              >
-                <div className="flex justify-center items-center mr-2">
-                  <svg
-                    className="h-5 w-5 "
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 10L17.5 10M10 2.5L10 17.5M6.5 2.5H13.5C14.9001 2.5 15.6002 2.5 16.135 2.77248C16.6054 3.01217 16.9878 3.39462 17.2275 3.86502C17.5 4.3998 17.5 5.09987 17.5 6.5V13.5C17.5 14.9001 17.5 15.6002 17.2275 16.135C16.9878 16.6054 16.6054 16.9878 16.135 17.2275C15.6002 17.5 14.9001 17.5 13.5 17.5H6.5C5.09987 17.5 4.3998 17.5 3.86502 17.2275C3.39462 16.9878 3.01217 16.6054 2.77248 16.135C2.5 15.6002 2.5 14.9001 2.5 13.5V6.5C2.5 5.09987 2.5 4.3998 2.77248 3.86502C3.01217 3.39462 3.39462 3.01217 3.86502 2.77248C4.3998 2.5 5.09987 2.5 6.5 2.5Z"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></path>
-                  </svg>
-                </div>
-                <span className="truncate">Identity</span>
-              </a>
-             
-            
-              
-              
-            </nav>
-          </div>
-        </div>
-      </div>
+    <div className="flex h-screen">
+       <Sidebar />
       <section className="flex-1 overflow-y-auto">
         <div className="m-6">
           <h1 className="text-2xl font-bold tracking-tight">Identity Credentials</h1>
