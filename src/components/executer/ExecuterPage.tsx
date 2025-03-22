@@ -165,11 +165,11 @@ export function ExecuterPage() {
 
   executeAcceptOffer({ args: {
     loanProvider: "asb",
-    borrowAmount: BigInt(12000_000_000),
+    borrowAmount: BigInt(12_000_000),
     targetAddr: account.address ?? "",
     expiryUnix: BigInt(Date.now() + 1000 * 180),
     nonce: BigInt(Math.round(Math.random()*1000)),
-    signature: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    signature: "0xb7dff5a70558af7cb8d6f057e1fba84678d901fc54400f75f34df7718fd165bf07692397bf41771483840a1c7bfa94f32a5c789342e1dca8804aeee01dafd2631c",
   } });
 
       // Execute the transaction
