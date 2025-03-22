@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define the identity interface
 export interface ExistingIdentity {
@@ -20,7 +20,7 @@ const initialIdentities: ExistingIdentity[] = [
     issueDate: "2018-05-12",
     expiryDate: "2028-05-12",
     status: "active",
-    imagePath: "/license.jpg"
+    imagePath: "/license.jpg",
   },
   {
     id: "2",
@@ -29,7 +29,7 @@ const initialIdentities: ExistingIdentity[] = [
     issueDate: "2022-02-15",
     expiryDate: "2026-02-15",
     status: "active",
-    imagePath: "/id.jpeg"
+    imagePath: "/id.jpeg",
   },
   {
     id: "3",
@@ -38,7 +38,7 @@ const initialIdentities: ExistingIdentity[] = [
     issueDate: "2019-11-03",
     expiryDate: "N/A",
     status: "active",
-    imagePath: "/bank.png"
+    imagePath: "/bank.png",
   },
   {
     id: "4",
@@ -47,7 +47,7 @@ const initialIdentities: ExistingIdentity[] = [
     issueDate: "2020-03-15",
     expiryDate: "N/A",
     status: "active",
-    imagePath: "/logos/easy-crypto.webp"
+    imagePath: "/logos/easy-crypto.webp",
   },
 ];
 
@@ -59,28 +59,38 @@ interface IdentityContextType {
 }
 
 // Create the context
-const IdentityContext = createContext<IdentityContextType | undefined>(undefined);
+const IdentityContext = createContext<IdentityContextType | undefined>(
+  undefined
+);
 
 // Provider component
 export function IdentityProvider({ children }: { children: ReactNode }) {
-  const [identities, setIdentities] = useState<ExistingIdentity[]>(initialIdentities);
+  const [identities, setIdentities] =
+    useState<ExistingIdentity[]>(initialIdentities);
 
   const addIdentity = (identity: Omit<ExistingIdentity, "id">) => {
     const newIdentity = {
       ...identity,
-      id: (identities.length + 1).toString()
+      id: (identities.length + 1).toString(),
     };
     setIdentities([...identities, newIdentity]);
   };
 
-  const updateIdentity = (id: string, updatedFields: Partial<ExistingIdentity>) => {
-    setIdentities(identities.map(identity => 
-      identity.id === id ? { ...identity, ...updatedFields } : identity
-    ));
+  const updateIdentity = (
+    id: string,
+    updatedFields: Partial<ExistingIdentity>
+  ) => {
+    setIdentities(
+      identities.map((identity) =>
+        identity.id === id ? { ...identity, ...updatedFields } : identity
+      )
+    );
   };
 
   return (
-    <IdentityContext.Provider value={{ identities, addIdentity, updateIdentity }}>
+    <IdentityContext.Provider
+      value={{ identities, addIdentity, updateIdentity }}
+    >
       {children}
     </IdentityContext.Provider>
   );
