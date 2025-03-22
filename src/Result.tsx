@@ -14,7 +14,45 @@ interface Loan {
   collateralRequired: string;
   maxAmount: string;
   status: "available" | "limited" | "coming soon";
+  amount: string;
 }
+
+// Default loan options to use as fallback when visiting the page directly
+const defaultLoanOptions: Loan[] = [
+  {
+    id: "nexo-personal",
+    name: "Personal Loan",
+    provider: "Nexo",
+    interestRate: "3.5%",
+    term: "12 months",
+    collateralRequired: "None",
+    maxAmount: "50000",
+    status: "available",
+    amount: "10000"
+  },
+  {
+    id: "aave-business",
+    name: "Business Loan",
+    provider: "Aave",
+    interestRate: "4.2%",
+    term: "24 months",
+    collateralRequired: "None",
+    maxAmount: "100000",
+    status: "available",
+    amount: "10000"
+  },
+  {
+    id: "easy-crypto-personal",
+    name: "Personal Loan",
+    provider: "Easy Crypto",
+    interestRate: "3.8%",
+    term: "18 months",
+    collateralRequired: "None",
+    maxAmount: "75000",
+    status: "available",
+    amount: "10000"
+  }
+];
 
 function Result() {
   // Get loan amount from context
@@ -23,6 +61,7 @@ function Result() {
     termLength: contextTermLength,
     selectedLoan,
     setSelectedLoan,
+    setRequestedAmount
   } = useLoan();
   const navigate = useNavigate();
 
@@ -33,6 +72,9 @@ function Result() {
   const [loanTerm, setLoanTerm] = useState(
     contextTermLength ? contextTermLength : "6"
   );
+  
+  // Default selected loan if none is present in context
+  const [fallbackLoan, setFallbackLoan] = useState<Loan | null>(null);
 
   // Update loan amount when context changes
   useEffect(() => {
@@ -42,36 +84,54 @@ function Result() {
     if (contextTermLength) {
       setLoanTerm(contextTermLength);
     }
-  }, [requestedAmount, contextTermLength]);
+    
+    // If no selected loan in context, set a default one based on the first option
+    if (!selectedLoan && !fallbackLoan) {
+      setFallbackLoan(defaultLoanOptions[0]);
+    }
+  }, [requestedAmount, contextTermLength, selectedLoan, fallbackLoan]);
 
   // Create a default loan object for the "Accept Offer & Continue" button
   const handleAcceptOffer = () => {
     // Generate a unique ID using timestamp and random string
     const uniqueId = `loan-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     
+    // Use the selected loan from context or the fallback
+    const loanToUse = selectedLoan || fallbackLoan;
+    
+    // Parse the loan amount (remove commas)
+    const numericLoanAmount = loanAmount.replace(/,/g, '');
+    
     // Create a default loan object with the current values
     const defaultLoan: Loan = {
       id: uniqueId,
-      provider: selectedLoan?.provider || "NZ Bank",
-      name: selectedLoan?.name || "Personal Loan",
-      interestRate: selectedLoan?.interestRate || "3.5%",
+      provider: loanToUse?.provider || "NZ Bank",
+      name: loanToUse?.name || "Personal Loan",
+      interestRate: loanToUse?.interestRate || "3.5%",
       term: `${loanTerm} months`,
       collateralRequired: "None",
-      maxAmount: selectedLoan?.maxAmount || "50000",
+      maxAmount: loanToUse?.maxAmount || "50000",
       status: "available",
+      amount: numericLoanAmount // Add the loan amount
     };
 
     // Set the selected loan in context
     setSelectedLoan(defaultLoan);
+    
+    // Update the requested amount in context to ensure it's available in Success component
+    setRequestedAmount(numericLoanAmount);
 
     // Navigate to success page
     navigate("/success");
   };
 
+  // The loan to display (either from context or fallback)
+  const displayLoan = selectedLoan || fallbackLoan || defaultLoanOptions[0];
+
   return (
     <div className="min-h-screen flex">
-            <Sidebar/>
-      <section className="flex-1 overflow-y-auto  mx-auto">
+      <Sidebar/>
+      <section className="flex-1 overflow-y-auto mx-auto">
         <div className="m-6">
           <h1 className="text-2xl font-bold tracking-tight">
             Application Successful
@@ -103,35 +163,35 @@ function Result() {
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
                   Based on your attested data,{" "}
-                  {selectedLoan?.provider || "Easy Crypto"} is ready to offer
+                  {displayLoan.provider} is ready to offer
                   you a loan
                 </p>
               </div>
             </div>
+
 
             <div className="border-t border-b border-gray-200 dark:border-gray-700 py-6 mb-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                 <div className="mb-4 md:mb-0">
                   <div className="flex items-center">
                     <img
-                      src={getProviderLogo(
-                        selectedLoan?.provider || "Easy Crypto"
-                      )}
-                      alt={selectedLoan?.provider || "Easy Crypto"}
+                      src={getProviderLogo(displayLoan.provider)}
+                      alt={displayLoan.provider}
                       className="h-10 w-10 mr-3 object-contain"
                     />
                     <h3 className="text-lg font-medium dark:text-white">
-                      {selectedLoan?.provider || "Easy Crypto"} Loan Offer
+                      {displayLoan.provider} Loan Offer
                     </h3>
                   </div>
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
                   <span className="text-blue-700 dark:text-blue-300 font-medium">
-                    Pre-approved up to {selectedLoan?.maxAmount || "$50,000"}{" "}
+                    Pre-approved up to {displayLoan.maxAmount || "$50,000"}{" "}
                     NZDD
                   </span>
                 </div>
               </div>
+
 
               {/* Loan Configuration */}
               <div className="bg-gray-50 dark:bg-gray-800 rounded-md mb-6">
@@ -155,17 +215,11 @@ function Result() {
                       Monthly payment:{" "}
                       <span className="font-semibold">
                       $
-                        {Number(
-                          Number(loanAmount) / Number(loanTerm) +
-                            Number(loanAmount) *
-                              (selectedLoan?.interestRate
-                                ? parseFloat(
-                                    selectedLoan.interestRate.replace(/%/g, "")
-                                  ) / 100
-                                : 0.035)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
+                        {calculateMonthlyPayment(
+                          parseFloat(loanAmount.replace(/,/g, "")),
+                          parseFloat(displayLoan.interestRate.replace(/%/g, "")) / 100,
+                          parseInt(loanTerm)
+                        ).toLocaleString()}{" "}
                         NZDD
                       </span>{" "}
                       for {loanTerm || "0"} months
@@ -174,13 +228,14 @@ function Result() {
                 </div>
               </div>
 
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                     Interest Rate
                   </p>
                   <p className="text-lg font-semibold dark:text-white">
-                    {selectedLoan?.interestRate || "3.5%"} per month
+                    {displayLoan.interestRate} per month
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md">
@@ -235,7 +290,7 @@ function Result() {
                     />
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Maximum: ${selectedLoan?.maxAmount || "$50,000"} NZDD
+                    Maximum: ${displayLoan.maxAmount} NZDD
                   </p>
                 </div>
                 <div>
@@ -283,7 +338,7 @@ function Result() {
                       </span>
                       <span className="font-medium dark:text-white">
                         $
-                        {(+loanAmount / +loanTerm).toLocaleString("en-US", {
+                        {(parseFloat(loanAmount.replace(/,/g, "")) / parseInt(loanTerm)).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -291,18 +346,12 @@ function Result() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">
-                        Interest ({selectedLoan?.interestRate || "3.5%"}):
+                        Interest ({displayLoan.interestRate}):
                       </span>
                       <span className="font-medium dark:text-white">
                         $
-                        {Number(
-                          +loanAmount *
-                            (selectedLoan?.interestRate
-                              ? parseFloat(
-                                  selectedLoan.interestRate.replace(/%/g, "")
-                                ) / 100
-                              : 0.035)
-                        ).toLocaleString("en-US", {
+                        {(parseFloat(loanAmount.replace(/,/g, "")) *
+                          (parseFloat(displayLoan.interestRate.replace(/%/g, "")) / 100)).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -314,17 +363,11 @@ function Result() {
                       </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
                         $
-                        {Number(
-                          Number(loanAmount) / Number(loanTerm) +
-                            Number(loanAmount) *
-                              (selectedLoan?.interestRate
-                                ? parseFloat(
-                                    selectedLoan.interestRate.replace(/%/g, "")
-                                  ) / 100
-                                : 0.035)
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
+                        {calculateMonthlyPayment(
+                          parseFloat(loanAmount.replace(/,/g, "")),
+                          parseFloat(displayLoan.interestRate.replace(/%/g, "")) / 100,
+                          parseInt(loanTerm)
+                        ).toLocaleString()}{" "}
                         NZDD
                       </span>
                     </div>
@@ -342,7 +385,7 @@ function Result() {
                       </span>
                       <span className="font-medium dark:text-white">
                         $
-                        {Number(loanAmount).toLocaleString("en-US", {
+                        {parseFloat(loanAmount.replace(/,/g, "")).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -354,15 +397,9 @@ function Result() {
                       </span>
                       <span className="font-medium dark:text-white">
                         $
-                        {Number(
-                          Number(loanAmount) *
-                            (selectedLoan?.interestRate
-                              ? parseFloat(
-                                  selectedLoan.interestRate.replace(/%/g, "")
-                                ) / 100
-                              : 0.035) *
-                            Number(loanTerm)
-                        ).toLocaleString("en-US", {
+                        {(parseFloat(loanAmount.replace(/,/g, "")) *
+                          (parseFloat(displayLoan.interestRate.replace(/%/g, "")) / 100) *
+                          parseInt(loanTerm)).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -374,16 +411,10 @@ function Result() {
                       </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
                         $
-                        {Number(
-                          Number(loanAmount) +
-                            Number(loanAmount) *
-                              (selectedLoan?.interestRate
-                                ? parseFloat(
-                                    selectedLoan.interestRate.replace(/%/g, "")
-                                  ) / 100
-                                : 0.035) *
-                              Number(loanTerm)
-                        ).toLocaleString("en-US", {
+                        {(parseFloat(loanAmount.replace(/,/g, "")) +
+                          parseFloat(loanAmount.replace(/,/g, "")) *
+                            (parseFloat(displayLoan.interestRate.replace(/%/g, "")) / 100) *
+                            parseInt(loanTerm)).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })}{" "}
                         NZDD
@@ -435,6 +466,27 @@ function Result() {
       </section>
     </div>
   );
+}
+
+// Helper function to calculate monthly payment
+function calculateMonthlyPayment(
+  principal: number,
+  annualRate: number,
+  termMonths: number
+): number {
+  // Convert annual rate to monthly rate
+  const monthlyRate = annualRate / 12;
+  
+  // Calculate monthly payment using the loan formula
+  if (monthlyRate === 0) {
+    return principal / termMonths;
+  }
+  
+  const payment =
+    (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+    (Math.pow(1 + monthlyRate, termMonths) - 1);
+    
+  return Math.round(payment * 100) / 100;
 }
 
 export default Result;

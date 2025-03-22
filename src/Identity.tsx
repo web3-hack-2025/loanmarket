@@ -62,7 +62,7 @@ function Identity() {
       issueDate: "15 Mar 2025",
       expiryDate: "N/A",
       status: "active",
-      url: "/bitcoin.png"
+      url: "/logos/easy-crypto.webp"
     }
   ];
 

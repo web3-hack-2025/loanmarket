@@ -27,10 +27,13 @@ export function Success() {
       return;
     }
     
+    // Get the loan amount from either the selectedLoan.amount, requestedAmount, or a fallback
+    const loanAmount = selectedLoan.amount || requestedAmount || "10000";
+    
     // Add the completed loan to our list
     addCompletedLoan({
       ...selectedLoan,
-      amount: requestedAmount,
+      amount: loanAmount,
       term: termLength ? `${termLength} months` : selectedLoan.term,
       dateApproved: new Date().toISOString(),
       status: "active"
@@ -159,8 +162,8 @@ export function Success() {
                 <p className="text-gray-600 dark:text-gray-400">Loan Amount</p>
                 <p className="font-medium dark:text-white">
                   $
-                  {requestedAmount
-                    ? Number(requestedAmount).toLocaleString("en-US", {
+                  {selectedLoan?.amount || requestedAmount
+                    ? Number(selectedLoan?.amount || requestedAmount).toLocaleString("en-US", {
                         maximumFractionDigits: 2,
                       })
                     : "N/A"}{" "}
@@ -189,7 +192,12 @@ export function Success() {
                 </p>
                 <p className="font-medium dark:text-white">
                   $
-                  {requestedAmount && termLength
+                  {selectedLoan?.amount && termLength
+                    ? Number(
+                        Number(selectedLoan?.amount) / Number(termLength) +
+                          Number(selectedLoan?.amount) * getInterestRateDecimal()
+                      ).toLocaleString("en-US", { maximumFractionDigits: 2 })
+                    : requestedAmount && termLength
                     ? Number(
                         Number(requestedAmount) / Number(termLength) +
                           Number(requestedAmount) * getInterestRateDecimal()
@@ -230,8 +238,8 @@ export function Success() {
                   </span>
                   <span className="font-medium dark:text-white">
                     $
-                    {requestedAmount
-                      ? Number(requestedAmount).toLocaleString("en-US", {
+                    {selectedLoan?.amount || requestedAmount
+                      ? Number(selectedLoan?.amount || requestedAmount).toLocaleString("en-US", {
                           maximumFractionDigits: 2,
                         })
                       : "0.00"}{" "}
@@ -244,7 +252,13 @@ export function Success() {
                   </span>
                   <span className="font-medium dark:text-white">
                     $
-                    {requestedAmount && termLength
+                    {selectedLoan?.amount && termLength
+                      ? Number(
+                          Number(selectedLoan?.amount) *
+                            getInterestRateDecimal() *
+                            Number(termLength)
+                        ).toLocaleString("en-US", { maximumFractionDigits: 2 })
+                      : requestedAmount && termLength
                       ? Number(
                           Number(requestedAmount) *
                             getInterestRateDecimal() *
@@ -260,7 +274,14 @@ export function Success() {
                   </span>
                   <span className="font-semibold text-blue-600 dark:text-blue-400">
                     $
-                    {requestedAmount && termLength
+                    {selectedLoan?.amount && termLength
+                      ? Number(
+                          Number(selectedLoan?.amount) +
+                            Number(selectedLoan?.amount) *
+                              getInterestRateDecimal() *
+                              Number(termLength)
+                        ).toLocaleString("en-US", { maximumFractionDigits: 2 })
+                      : requestedAmount && termLength
                       ? Number(
                           Number(requestedAmount) +
                             Number(requestedAmount) *
