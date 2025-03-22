@@ -1,56 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Define types for our application
-interface ExistingIdentity {
-  id: string;
-  name: string;
-  type: string;
-  issueDate: string;
-  expiryDate: string;
-  status: "active" | "expiring" | "expired";
-  imagePath: string;
-}
-
-// Sample data
-const existingIdentities: ExistingIdentity[] = [
-  {
-    id: "1",
-    name: "NZ Driver's License",
-    type: "Government ID",
-    issueDate: "2018-05-12",
-    expiryDate: "2028-05-12",
-    status: "active",
-    imagePath: "/license.jpg"
-  },
-  {
-    id: "2",
-    name: "UoA Student ID",
-    type: "Educational ID",
-    issueDate: "2022-02-15",
-    expiryDate: "2026-02-15",
-    status: "active",
-    imagePath: "/id.jpeg"
-  },
-  {
-    id: "3",
-    name: "ANZ Bank Account",
-    type: "Financial ID",
-    issueDate: "2019-11-03",
-    expiryDate: "N/A",
-    status: "active",
-    imagePath: "/bank.png"
-  },
-  {
-    id: "4",
-    name: "Bitcoin Wallet",
-    type: "Cryptocurrency",
-    issueDate: "2020-03-15",
-    expiryDate: "N/A",
-    status: "active",
-    imagePath: "/logos/easy-crypto.webp"
-  },
-];
+import CredentialModal from "./components/credentials/CredentialModal";
+import { useIdentity } from "./context/IdentityContext";
 
 // Progress indicator component
 const ProgressIndicator = ({ 
@@ -219,6 +170,10 @@ const IdentityCredentialsStep = ({ onNext, onPrev, selectedIdentityIds, setSelec
   selectedIdentityIds: string[];
   setSelectedIdentityIds: (ids: string[]) => void;
 }) => {
+  // Get identities from context
+  const { identities } = useIdentity();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Toggle identity selection
   const toggleIdentitySelection = (id: string) => {
     if (selectedIdentityIds.includes(id)) {
@@ -236,7 +191,7 @@ const IdentityCredentialsStep = ({ onNext, onPrev, selectedIdentityIds, setSelec
       </p>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {existingIdentities.map(identity => (
+        {identities.map(identity => (
           <div 
             key={identity.id}
             className={`border rounded-lg overflow-hidden transition-all cursor-pointer ${
@@ -293,10 +248,29 @@ const IdentityCredentialsStep = ({ onNext, onPrev, selectedIdentityIds, setSelec
             </div>
           </div>
         ))}
+        
+        {/* Add New Credential Button */}
+        <div 
+          className="border border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors h-full min-h-[300px]"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold dark:text-white mb-2">Add New Credential</h3>
+          <p className="text-gray-600 dark:text-gray-400 text-center">
+            Add a new identity credential to use in your application
+          </p>
+        </div>
       </div>
       
+      {/* Credential Modal - Now using the imported component */}
+      <CredentialModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
       <div className="flex justify-start gap-4 pt-4">
-      <button
+        <button
           onClick={onNext}
           disabled={selectedIdentityIds.length === 0}
           className={`px-4 py-2 rounded-md text-white flex-1 ${
@@ -309,11 +283,10 @@ const IdentityCredentialsStep = ({ onNext, onPrev, selectedIdentityIds, setSelec
         </button>
         <button
           onClick={onPrev}
-          className="px-4  flex-1  py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="px-4 flex-1 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           Back
         </button>
-      
       </div>
     </div>
   );
@@ -516,8 +489,11 @@ const ConfirmationStep = ({
   onPrev: () => void;
   onSubmit: () => void;
 }) => {
+  // Get identities from context
+  const { identities } = useIdentity();
+  
   // Get selected identity details
-  const selectedIdentities = existingIdentities.filter(identity => 
+  const selectedIdentities = identities.filter(identity => 
     selectedIdentityIds.includes(identity.id)
   );
 
