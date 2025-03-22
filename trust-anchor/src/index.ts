@@ -105,4 +105,5 @@ app.after(() => {
 
 app.listen({
   port: 8082,
+  host: "0.0.0.0",
 });
