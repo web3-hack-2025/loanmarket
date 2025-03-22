@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -18,25 +17,6 @@ interface Loan {
   collateralRequired: string;
   maxAmount: string;
   status: "available" | "limited" | "coming soon";
-}
-
-interface Identity {
-  id: string;
-  name: string;
-  provider: string;
-  type: string;
-  verificationTime: string;
-  cost: string;
-  status: "available" | "limited" | "coming soon";
-}
-
-interface ExistingIdentity {
-  id: string;
-  name: string;
-  type: string;
-  issueDate: string;
-  expiryDate: string;
-  status: "active" | "expiring" | "expired";
 }
 
 const loans: Loan[] = [
@@ -183,72 +163,6 @@ const loans: Loan[] = [
   },
 ];
 
-const identities: Identity[] = [
-  {
-    id: "1",
-    name: "Digital ID Verification",
-    provider: "RealMe",
-    type: "Government ID",
-    verificationTime: "Instant",
-    cost: "Free",
-    status: "available",
-  },
-  {
-    id: "2",
-    name: "Passport Verification",
-    provider: "Yoti",
-    type: "Passport",
-    verificationTime: "24 hours",
-    cost: "$5",
-    status: "available",
-  },
-  {
-    id: "3",
-    name: "Driver License Verification",
-    provider: "NZTA",
-    type: "Driver License",
-    verificationTime: "Instant",
-    cost: "Free",
-    status: "available",
-  },
-  {
-    id: "4",
-    name: "Biometric Verification",
-    provider: "Onfido",
-    type: "Biometric",
-    verificationTime: "1-2 hours",
-    cost: "$10",
-    status: "limited",
-  },
-];
-
-const existingIdentities: ExistingIdentity[] = [
-  {
-    id: "1",
-    name: "NZ Driver's License",
-    type: "Government ID",
-    issueDate: "15 Mar 2023",
-    expiryDate: "15 Mar 2028",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Student ID",
-    type: "Educational",
-    issueDate: "01 Feb 2024",
-    expiryDate: "31 Dec 2025",
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Bank Account",
-    type: "Financial",
-    issueDate: "10 Jan 2022",
-    expiryDate: "N/A",
-    status: "active",
-  },
-];
-
 type SortDirection = "asc" | "desc" | null;
 type SortableColumn = keyof Omit<Loan, "id">;
 
@@ -283,10 +197,7 @@ export function LoansTable() {
   const [itemsPerPage, setItemsPerPage] = useState(80);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-  const [isIdentitySelectionModalOpen, setIsIdentitySelectionModalOpen] = useState(false);
-  const [applicationType, setApplicationType] = useState<"loan" | "identity" | null>(null);
-  const [selectedIdentityIds, setSelectedIdentityIds] = useState<string[]>([]);
+  const [isLoadingModalOpen, setIsLoadingModalOpen] = useState(false);
 
   // Filter loans based on search term
   const filteredLoans = loans.filter((loan) => {
@@ -345,6 +256,19 @@ export function LoansTable() {
     return "↕️";
   };
 
+  // Handle apply button click
+  const handleApply = (loan: Loan) => {
+    setSelectedLoan(loan);
+    // Show loading modal directly instead of application modal
+    setIsLoadingModalOpen(true);
+    
+    // Simulate processing time before redirecting to result page
+    setTimeout(() => {
+      setIsLoadingModalOpen(false);
+      window.location.href = '/result';
+    }, 4500); // 4.5 seconds loading time
+  };
+
   return (
     <div className="space-y-4">
       {/* Modal for loan details */}
@@ -395,7 +319,7 @@ export function LoansTable() {
                 <span className="col-span-3 font-medium dark:text-white">{selectedLoan.collateralRequired}</span>
               </div>
               <div className="grid grid-cols-5 gap-2">
-                <span className="col-span-2 text-gray-500 dark:text-gray-400">Max Amount:</span>
+                <span className="col-span-2 text-gray-500 dark:text-gray-400">Offered Amount:</span>
                 <span className="col-span-3 font-medium dark:text-white">{selectedLoan.maxAmount}</span>
               </div>
               <div className="grid grid-cols-5 gap-2">
@@ -423,12 +347,12 @@ export function LoansTable() {
             {selectedLoan.status === "available" && (
                 <a
                   onClick={() => {
-                    setIsApplyModalOpen(true);
                     setIsModalOpen(false);
+                    handleApply(selectedLoan);
                   }}
                   className="px-4 py-2 bg-blue-500 text-white rounded-md text-center hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer"
                 >
-                  Apply Now
+          Claim Offer
                 </a>
               )}
               <a
@@ -466,9 +390,8 @@ export function LoansTable() {
         </div>
       </div>
 
-      <div className="rounded-md border shadow-sm overflow-hidden dark:border-gray-700 dark:bg-gray-900 w-full">
+      <div className="rounded-md border shadow-sm overflow-hidden dark:border-gray-700 dark:bg-gray-900 w-full mb-12">
         <Table>
-          <TableCaption className="dark:text-gray-400">A list of available crypto loans and interest rates.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead 
@@ -505,7 +428,7 @@ export function LoansTable() {
                 className="font-semibold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                 onClick={() => handleSort("maxAmount")}
               >
-                Max Amount {getSortIcon("maxAmount")}
+                Offered Amount {getSortIcon("maxAmount")}
               </TableHead>
               <TableHead 
                 className="font-semibold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -610,284 +533,24 @@ export function LoansTable() {
           </button>
         </div>
       )}
-      {/* Apply Modal */}
-      {isApplyModalOpen && (
+      
+      {/* Loading Modal */}
+      {isLoadingModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-4 dark:text-white">Apply for {selectedLoan?.name}</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Please choose how you would like to proceed with your application:
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full p-8 flex flex-col items-center">
+            <h2 className="text-xl font-semibold mb-6 dark:text-white">Processing Your Application</h2>
+            
+            <div className="flex justify-center items-center mb-6">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+            </div>
+            
+            <div className="text-center space-y-4">
+              <p className="text-gray-600 dark:text-gray-400">
+                We're securely processing your application...
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Loan Application Card */}
-                <div 
-                  onClick={() => {
-                    setApplicationType("loan");
-                    setIsIdentitySelectionModalOpen(true);
-                  }}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    applicationType === "loan" 
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30" 
-                      : "border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold dark:text-white">Apply with Existing Identity</h3>
-                    <div className={`w-5 h-5 rounded-full border ${
-                      applicationType === "loan" 
-                        ? "border-blue-500 bg-blue-500" 
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {applicationType === "loan" && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Continue with your verified identity to apply for this loan.
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Faster application process
-                    </li>
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      No additional verification needed
-                    </li>
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Secure and private
-                    </li>
-                  </ul>
-                </div>
-                
-                {/* Identity Verification Card */}
-                <div 
-                  onClick={() => setApplicationType("identity")}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    applicationType === "identity" 
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30" 
-                      : "border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold dark:text-white">Create New Identity</h3>
-                    <div className={`w-5 h-5 rounded-full border ${
-                      applicationType === "identity" 
-                        ? "border-blue-500 bg-blue-500" 
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {applicationType === "identity" && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Create a new verified identity to use for this and future applications.
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Multiple verification options
-                    </li>
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Reusable for future applications
-                    </li>
-                    <li className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Enhanced privacy controls
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              
-              {/* Identity Options Section - Only shown when identity is selected */}
-              {applicationType === "identity" && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-4 dark:text-white">Choose Verification Method</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {identities.map((identity) => (
-                      <div 
-                        key={identity.id}
-                        className="border rounded-lg p-4 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-700 cursor-pointer"
-                      >
-                        <h4 className="font-medium mb-2 dark:text-white">{identity.name}</h4>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                          <p>Provider: {identity.provider}</p>
-                          <p>Type: {identity.type}</p>
-                          <p>Verification Time: {identity.verificationTime}</p>
-                          <p>Cost: {identity.cost}</p>
-                          <p>
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                identity.status === "available"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                  : identity.status === "limited"
-                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                              }`}
-                            >
-                              {identity.status === "available"
-                                ? "Available"
-                                : identity.status === "limited"
-                                ? "Limited"
-                                : "Coming Soon"}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              <div className="mt-8 flex justify-end space-x-4">
-                <button
-                  onClick={() => {
-                    setIsApplyModalOpen(false);
-                    setApplicationType(null);
-                    setSelectedIdentityIds([]);
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  disabled={!applicationType || (applicationType === "loan" && selectedIdentityIds.length === 0)}
-                  className={`px-4 py-2 rounded-md ${
-                    (applicationType && !(applicationType === "loan" && selectedIdentityIds.length === 0))
-                      ? "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                  }`}
-                >
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Identity Selection Modal */}
-      {isIdentitySelectionModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold dark:text-white">Select Identities</h2>
-              <button 
-                onClick={() => setIsIdentitySelectionModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <p>This will send anonymised evidence to the loan provider to get you the best possible loan</p>
-            <div className="grid grid-cols-1 gap-4">
-              {existingIdentities.map((identity) => (
-                <div 
-                  key={identity.id}
-                  onClick={() => {
-                    setSelectedIdentityIds(prev => {
-                      if (prev.includes(identity.id)) {
-                        return prev.filter(id => id !== identity.id);
-                      } else {
-                        return [...prev, identity.id];
-                      }
-                    });
-                  }}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedIdentityIds.includes(identity.id) 
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30" 
-                      : "border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium mb-1 dark:text-white">{identity.name}</h4>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                        <p>Type: {identity.type}</p>
-                        <p>Issue Date: {identity.issueDate}</p>
-                        <p>Expiry Date: {identity.expiryDate}</p>
-                        <p>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              identity.status === "active"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                : identity.status === "expiring"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                            }`}
-                          >
-                            {identity.status === "active"
-                              ? "Active"
-                              : identity.status === "expiring"
-                              ? "Expiring Soon"
-                              : "Expired"}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className={`w-5 h-5 rounded-sm border ${
-                      selectedIdentityIds.includes(identity.id) 
-                        ? "border-blue-500 bg-blue-500" 
-                        : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {selectedIdentityIds.includes(identity.id) && (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-8 flex justify-end space-x-4">
-              <button
-                onClick={() => {
-                  setIsIdentitySelectionModalOpen(false);
-                  setSelectedIdentityIds([]);
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setIsIdentitySelectionModalOpen(false);
-                  setIsApplyModalOpen(true);
-                }}
-                disabled={selectedIdentityIds.length === 0}
-                className={`px-4 py-2 rounded-md ${
-                  selectedIdentityIds.length > 0
-                    ? "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                }`}
-              >
-                Continue with {selectedIdentityIds.length} {selectedIdentityIds.length === 1 ? 'Identity' : 'Identities'}
-              </button>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                This will only take a moment
+              </p>
             </div>
           </div>
         </div>

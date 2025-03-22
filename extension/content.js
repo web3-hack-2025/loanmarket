@@ -126,12 +126,49 @@ function addCustomStyle() {
   });
 }
 
+// Function to find and replace the $0 span with $21,012
+function updateDollarAmount() {
+  console.log('Waiting for page to fully load...');
+  
+  // Wait for the page to be fully loaded
+  if (document.readyState === 'complete') {
+    console.log('Page is already loaded, waiting 20 seconds...');
+    setTimeout(findAndReplaceAmount, 20000);
+  } else {
+    console.log('Waiting for page to load...');
+    window.addEventListener('load', function() {
+      console.log('Page loaded, waiting 20 seconds...');
+      setTimeout(findAndReplaceAmount, 20000);
+    });
+  }
+  
+  function findAndReplaceAmount() {
+    console.log('Searching for $0 span element...');
+    // Use a more specific selector to find spans with exact $0 text content
+    const spans = document.querySelectorAll('span');
+    
+    for (const span of spans) {
+      if (span.textContent === '$0') {
+        console.log('Found $0 span, replacing with $21,012');
+        span.textContent = '$21,012';
+        console.log('Replacement complete!');
+        return;
+      }
+    }
+    
+    console.log('Could not find span with $0 content');
+  }
+}
+
 // Run when the content script is injected
 (function() {
   console.log('Content script loaded, injecting menu items...');
   
   // Try to inject menu items immediately
   injectMenuItems();
+  
+  // Run the function to update dollar amount
+  updateDollarAmount();
   
   // Also set up a mutation observer to detect if the sidebar is added dynamically
   const observer = new MutationObserver(function(mutations) {

@@ -1,7 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import ReactDOM from "react-dom/client";
 import './index.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from './App.tsx'
+import Result from "./Result.tsx";
+import Rejected from "./rejected.tsx";
+import Identity from "./Identity.tsx";
+import Apply from "./Apply.tsx";
+import Application from "./Application.tsx";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add('dark')
@@ -17,8 +22,23 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', fo
 // Initial call to force dark mode
 forceDarkMode()
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const root = document.getElementById("root");
+
+if (root) {
+  ReactDOM.createRoot(root).render(
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/loan" element={<App />} />
+
+        <Route path="/apply" element={<Apply />} />
+        <Route path="/result" element={<Result />} />
+        <Route path="/offers" element={<Application />} />
+
+        <Route path="/identity" element={<Identity />} />
+      </Routes>
+    </BrowserRouter>
+  );
+} else {
+  console.error("Root element not found");
+}
