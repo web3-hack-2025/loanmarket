@@ -360,7 +360,7 @@ const IdentityCredentialsStep = ({
         onClose={() => setIsModalOpen(false)}
       />
 
-      <div className="flex justify-start gap-4 pt-4 max-w-2xl">
+      <div className="flex justify-start gap-4 pt-4 max-w-2xl max-md:flex-col">
         <button
           onClick={onNext}
           disabled={selectedIdentityIds.length === 0}
@@ -489,8 +489,8 @@ const ApplicationDetailsStep = ({
         Please provide the following information about your loan request
       </p>
 
-      <form className="space-y-6 mt-6">
-        <div className="flex gap-4">
+      <form className="flex flex-col gap-6 mt-6">
+        <div className="flex gap-4 max-md:flex-col">
           <div className="flex-1">
             <label
               htmlFor="loanAmount"
@@ -591,12 +591,12 @@ const ApplicationDetailsStep = ({
           </div>
         )}
 
-        <div className="flex justify-start pt-4 gap-4 max-w-2xl">
+        <div className="flex justify-start pt-4 gap-4 max-w-2xl max-md:flex-col">
           <button
             type="button"
             onClick={onNext}
             disabled={!isFormValid()}
-            className={`px-4 py-2 rounded-md text-white flex-1 ${
+            className={`px-4 py-2 rounded-md text-white w-full flex-1 ${
               isFormValid()
                 ? "bg-blue-600 hover:bg-blue-700"
                 : "bg-blue-400 cursor-not-allowed"
@@ -756,18 +756,18 @@ const ConfirmationStep = ({
         </div>
       </div>
 
-      <div className="flex max-w-2xl items-center justify-between pt-4  border-gray-200 dark:border-gray-700 gap-4">
+      <div className="flex max-w-2xl items-center justify-between pt-4  border-gray-200 dark:border-gray-700 gap-4 max-md:flex-col">
         <button
           type="button"
           onClick={onSubmit}
-          className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="flex-1 px-6 py-2 bg-blue-600 w-full text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Submit Application
         </button>
         <button
           type="button"
           onClick={onPrev}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="flex-1 px-4 py-2 border w-full border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           Edit Application
         </button>
@@ -871,7 +871,7 @@ function Apply() {
           <ConnectWalletButton />
           </div>
       <div className="flex border-t">
-        <div className="p-4 h-[calc(100vh-96px)] border-r">
+        <div className="p-4 h-[calc(100vh-96px)] border-r max-md:hidden">
           {" "}
           <ProgressIndicator currentStep={currentStep} />
         </div>
