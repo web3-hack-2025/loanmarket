@@ -14,6 +14,7 @@ import { db } from "./db";
 import { blobsTable } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { bundleRequest, errorResponse, loanRequest, loansRequest } from "./lib";
+import cors from "@fastify/cors";
 
 if (!process.env.PROVIDERS) {
   throw new Error(
@@ -39,6 +40,12 @@ validateCredentialsUrl.pathname = "/verify";
 const app = Fastify({
   maxParamLength: 1000,
   logger: true,
+});
+
+app.register(cors, {
+  origin: "*", // Allows all origins
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 });
 
 app.register(fastifySwagger, {
