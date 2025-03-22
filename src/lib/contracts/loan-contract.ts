@@ -1,3 +1,4 @@
+import { ABI } from './abi';
 import { defaultContractConfig } from './types';
 
 // This file will act as a service layer for contract interactions
@@ -6,7 +7,10 @@ import { defaultContractConfig } from './types';
 export function getLoanContractConfig() {
   // This could be enhanced to dynamically select between contract
   // configurations based on environment variables or other app state
-  return defaultContractConfig.loanContract;
+  return {
+    ...defaultContractConfig.loanContract,
+    abi: ABI
+  };
 }
 
 export function getNetworkConfig() {
