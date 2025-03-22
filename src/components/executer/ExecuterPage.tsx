@@ -7,9 +7,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, XCircle } from "lucide-react";
-import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt, useTransactionConfirmations } from "wagmi";
 import { getLoanContractConfig, formatLoanAmount, parseLoanAmount } from "@/lib/contracts/loan-contract";
 import { Progress } from "@/components/ui/progress";
+
 
 enum TransactionStatus {
   IDLE = "idle",
@@ -86,14 +87,20 @@ export function ExecuterPage() {
     },
   });
 
+  const {data: confirmationsData} = useTransactionConfirmations({
+    hash: txData,
+  })
+
   // Update confirmations when a new block is mined
   useEffect(() => {
-    if (txData && isWaiting) {
+    if (txData) {
       // This is a simplified approach since wagmi doesn't directly expose block confirmations
       // You might need to implement a more complex solution with block subscriptions
-      if (receipt && receipt.blockNumber) {
-        const currentConfirmations = Math.min(receipt.confirmations || 1, requiredConfirmations);
-        setConfirmations(currentConfirmations);
+
+      console.log("Transaction receipt:", receipt?.logs);
+
+      if (confirmationsData) {
+        setConfirmations(Number(confirmationsData));
       } else {
         setConfirmations(0); // Transaction submitted but not yet mined
       }
@@ -136,10 +143,10 @@ export function ExecuterPage() {
       
       // Execute the transaction
       executeStore({ args: [amountValue] });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Transaction preparation error:", error);
       setTransactionStatus(TransactionStatus.ERROR);
-      setErrorMessage(error.message || "Failed to prepare transaction");
+      setErrorMessage(error instanceof Error ? error.message : "Failed to prepare transaction");
     }
   };
 
@@ -237,10 +244,10 @@ export function ExecuterPage() {
               {transactionStatus === TransactionStatus.PENDING && (
                 <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 flex justify-between items-stretch">
                   <div>
-                  <AlertTitle>Transaction in Progress</AlertTitle>
+                  <AlertTitle>{txData ? "Transaction in Progress" : "Waiting for confirmation"}</AlertTitle>
                   <AlertDescription>
-                    Please wait while your transaction is being processed on the blockchain.
-                    Do not close this window.
+                  {txData ? "Please wait while your transaction is being processed on the blockchain. Do not close this window." : "Please confirm the transaction in your wallet to start the on-chain loan application."}
+                    
                       
                     {txData && (
                       <div className="mt-4 space-y-2">
