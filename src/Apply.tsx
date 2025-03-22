@@ -88,7 +88,7 @@ const IdentityTypeStep = ({
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-xl">
       <h2 className="text-xl font-semibold mb-6">Identity Verification</h2>
       <p className="mb-6 text-gray-600 dark:text-gray-300">
         To proceed with your loan application, we need to verify your identity.
@@ -466,7 +466,7 @@ const ApplicationDetailsStep = ({
   ];
 
   return (
-    <div className="">
+    <div className=" mx-auto">
       <h2 className="text-xl font-semibold">Loan Application Details</h2>
       <p className="text-gray-500 dark:text-gray-400">
         Please provide the following information about your loan request
@@ -509,6 +509,7 @@ const ApplicationDetailsStep = ({
               id="termLength"
               name="termLength"
               value={personalInfo.termLength}
+              defaultValue={12}
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
@@ -626,7 +627,7 @@ const ConfirmationStep = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6  mx-auto">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Review Your Application</h2>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
@@ -677,7 +678,7 @@ const ConfirmationStep = ({
           </div>
         </div>
 
-        <div>
+        <div >
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
             Identity Verification
           </h3>
@@ -768,8 +769,8 @@ function Apply() {
   const [applicationType, setApplicationType] = useState("");
   const [selectedIdentityIds, setSelectedIdentityIds] = useState<string[]>([]);
   const [personalInfo, setPersonalInfo] = useState({
-    loanAmount: "",
-    termLength: "",
+    loanAmount: "12000",
+    termLength: "6",
     loanReason: "",
     otherReasonText: "",
   });

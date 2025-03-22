@@ -2,17 +2,25 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-export default function WalletBouncer({ children }: { children: React.ReactNode }) {
+interface WalletBouncerProps {
+    children: React.ReactNode | ((props: { connected: boolean }) => React.ReactNode);
+}
 
+export default function WalletBouncer({ children }: WalletBouncerProps) {
     const account = useAccount();
     const navigate = useNavigate();
+    const isConnected = account && account.status === "connected";
 
-
-    if (!account || account.status === "disconnected") {
-        navigate("/");
+    // If children is a function, call it with the connected status
+    if (typeof children === "function") {
+        return <>{children({ connected: isConnected })}</>;
     }
 
-    return (<>
-        {children}
-    </>);
+    // Otherwise, redirect if not connected
+    if (!isConnected) {
+        navigate("/");
+        return null;
+    }
+
+    return <>{children}</>;
 }

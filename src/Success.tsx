@@ -73,7 +73,7 @@ export function Success() {
               showSuccessText ? "opacity-100" : "opacity-0"
             } ${showSuccessContent ? "opacity-0" : ""}`}
           >
-            <h1 className="text-6xl font-bold text-white">SUCCESS</h1>
+            <h1 className="text-6xl font-bold text-white">🥳 Loan Secured 🥳</h1>
           </div>
         )}
 

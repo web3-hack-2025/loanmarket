@@ -83,7 +83,7 @@ export function Sidebar({
         <div className="flex flex-col h-full border-r border-muted">
           <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">
             <Link to="/" className="outline-none">
-              <h1 className="text-2xl font-bold">The Free Market</h1>
+              <h1 className="text-2xl font-bold">Loan Market</h1>
             </Link>
           </div>
 

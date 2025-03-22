@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Loan from "./Loan.tsx";
 import Result from "./Result.tsx";
 import Identity from "./Identity.tsx";
@@ -38,7 +38,16 @@ if (root) {
         <IdentityProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route 
+                path="/" 
+                element={
+                  <WalletBouncer>
+                    {({ connected }: { connected: boolean }) => 
+                      connected ? <Navigate to="/loan" replace /> : <Landing />
+                    }
+                  </WalletBouncer>
+                } 
+              />
               <Route path="/loan" element={<WalletBouncer><Loan /></WalletBouncer>} />
 
               <Route path="/apply" element={<WalletBouncer><Apply /></WalletBouncer>} />
