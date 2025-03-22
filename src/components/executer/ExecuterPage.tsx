@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt, useTransactionConfirmations } from "wagmi";
-import { getLoanContractConfig, formatLoanAmount, parseLoanAmount } from "@/lib/contracts/loan-contract";
+import { getLoanContractConfig, formatLoanAmount } from "@/lib/contracts/loan-contract";
 import { Progress } from "@/components/ui/progress";
 
 
@@ -32,7 +32,6 @@ export function ExecuterPage() {
   
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(TransactionStatus.IDLE);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [confirmations, setConfirmations] = useState<number>(0);
   const [requiredConfirmations] = useState<number>(3); // Set required confirmations (adjust as needed)
   
   // Get the loan contract configuration
@@ -46,7 +45,7 @@ export function ExecuterPage() {
   }, [selectedLoan, requestedAmount, navigate]);
 
   // Read stored value from contract
-  const { data: storedValue, refetch: refetchStoredValue } = useReadContract({
+  const { refetch: refetchStoredValue } = useReadContract({
     address: contractConfig.address,
     abi: contractConfig.abi,
     functionName: "retrieve",
@@ -74,11 +73,10 @@ export function ExecuterPage() {
   
   // Wait for transaction to complete
   const { 
-    isLoading: isWaiting,
     isSuccess: txSuccess,
     isError: txIsError,
     error: txError,
-    data: receipt
+    // data: receipt
   } = useWaitForTransactionReceipt({
     hash: txData,
     confirmations: requiredConfirmations,
@@ -89,29 +87,15 @@ export function ExecuterPage() {
 
   const {data: confirmationsData} = useTransactionConfirmations({
     hash: txData,
-  })
-
-  // Update confirmations when a new block is mined
-  useEffect(() => {
-    if (txData) {
-      // This is a simplified approach since wagmi doesn't directly expose block confirmations
-      // You might need to implement a more complex solution with block subscriptions
-
-      console.log("Transaction receipt:", receipt?.logs);
-
-      if (confirmationsData) {
-        setConfirmations(Number(confirmationsData));
-      } else {
-        setConfirmations(0); // Transaction submitted but not yet mined
-      }
+    query: {
+      enabled: !!txData,
     }
-  }, [txData, isWaiting, receipt, requiredConfirmations]);
+  })
   
   // Handle transaction completion
   useEffect(() => {
     if (txSuccess) {
       setTransactionStatus(TransactionStatus.SUCCESS);
-      setConfirmations(requiredConfirmations);
       refetchStoredValue();
     } else if (txIsError && txError) {
       setTransactionStatus(TransactionStatus.ERROR);
@@ -124,7 +108,6 @@ export function ExecuterPage() {
     if (isPending) {
       setTransactionStatus(TransactionStatus.PENDING);
       setErrorMessage("");
-      setConfirmations(0);
     } else if (isError && writeError) {
       setTransactionStatus(TransactionStatus.ERROR);
       setErrorMessage(writeError.message || "An error occurred while writing to the contract");
@@ -212,13 +195,6 @@ export function ExecuterPage() {
                 </p>
               </div>
 
-              {storedValue !== undefined && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Current stored value in contract: <span className="font-medium">{parseLoanAmount(storedValue)}</span>
-                  </p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -253,10 +229,10 @@ export function ExecuterPage() {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Transaction sent</span>
-                          <span>{confirmations} of {requiredConfirmations} confirmations</span>
+                          <span>{confirmationsData ?? -1} of {requiredConfirmations} confirmations</span>
                         </div>
                         <Progress 
-                          value={(confirmations / requiredConfirmations) * 100} 
+                          value={((Number(confirmationsData  ?? -1)) / requiredConfirmations) * 100} 
                           className="h-2 bg-yellow-200 dark:bg-yellow-900"
                         />
                         <p className="text-xs mt-1">
