@@ -11,7 +11,7 @@ import { LoanProvider } from "./context/LoanContext.tsx";
 import { IdentityProvider } from "./context/IdentityContext";
 import Landing from "./Landing.tsx";
 import { Web3Provider } from "./components/web3/web3-provider.tsx";
-// import WalletBouncer from "./components/web3/wallet-bouncer.tsx";
+import WalletBouncer from "./components/web3/wallet-bouncer.tsx";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add("dark");
@@ -39,14 +39,13 @@ if (root) {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/loan" element={<App />} />
+              <Route path="/loan" element={<WalletBouncer><App /></WalletBouncer>} />
 
-              <Route path="/apply" element={<Apply />} />
-              <Route path="/result" element={<Result />} />
-              <Route path="/offers" element={<Application />} />
-              <Route path="/success" element={<Success />} />
-
-              <Route path="/identity" element={<Identity />} />
+              <Route path="/apply" element={<WalletBouncer><Apply /></WalletBouncer>} />
+              <Route path="/result" element={<WalletBouncer><Result /></WalletBouncer>} />
+              <Route path="/offers" element={<WalletBouncer><Application /></WalletBouncer>} />
+              <Route path="/success" element={<WalletBouncer><Success /></WalletBouncer>} />
+              <Route path="/identity" element={<WalletBouncer><Identity /></WalletBouncer>} />
             </Routes>
           </BrowserRouter>
         </IdentityProvider>
