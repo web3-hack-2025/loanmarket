@@ -9,11 +9,11 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
  * @notice Validates whitelisted addresses using digital signatures
  */
 
-interface ITransferFunds{
-    function transferFunds() external payable;
-}
+// interface ITransferFunds{
+    // function transferFunds() external payable;
+// }
 
-contract TransferFunds is ITransferFunds
+contract TransferFunds 
 {
     event Received(address sender, uint256 amount);
  
@@ -23,9 +23,10 @@ contract TransferFunds is ITransferFunds
     // constructor(address _targetWallet) Ownable(msg.sender) {
     //     targetWallet = _targetWallet;
     // }
-
-    function transferFunds() external payable {
-        require(msg.value > 0, "No funds received");
+    
+    function transferFunds(address payable target, uint256 borrowAmount) external payable {
+        require(msg.value == borrowAmount, "Incorrect amount of funds detected");
+        target.transfer(msg.value);
         emit Received(msg.sender, msg.value);
     }
 }
@@ -40,7 +41,7 @@ contract LoanOffer is Ownable {
     struct Offer {
         string loanProvider;
         uint256 borrowAmount;
-        address targetAddr;
+        address payable targetAddr;
         uint256 expiryUnix;
         uint256 nonce;
     }
@@ -62,11 +63,16 @@ contract LoanOffer is Ownable {
 
     event PublicKeyRegistered(address provider, bytes publicKey);
     event UserAdded(address indexed user, uint256 nonce);
+    event SignerAddressProduced(address originalSigner, bytes publicKey);
     
     /// @notice Address used to validate whitelisted addresses
 
-    constructor(address _transferFundsContract) Ownable(msg.sender) {
-        transferFundsContract = _transferFundsContract;
+    constructor() Ownable(msg.sender) {
+    }
+    
+    function setTransferFundsContract(address addr) public
+    {
+        transferFundsContract = addr;
     }
 
     function addUserToSystem() public
@@ -97,20 +103,25 @@ contract LoanOffer is Ownable {
     function acceptOffer(        
         string memory loanProvider,
         uint256 borrowAmount,
-        address targetAddr,
+        address payable targetAddr,
         uint256 expiryUnix,
         uint256 nonce,
         bytes memory signature
-        ) public
+        ) public payable
     {
+
+        require(msg.sender == targetAddr, "Offer is not for this user");        
+        require(block.timestamp < expiryUnix, "Offer has expired");
+        require(users[msg.sender].nonce == UNCLAIMED_OFFER_NONCE, "User has already accepted a different loan offer"); 
 
         bytes32 offerHash = keccak256(
             abi.encodePacked(loanProvider, borrowAmount, targetAddr, expiryUnix, nonce)
         );
-
         // Recover the signer from the signature
         address signer = recoverSigner(offerHash, signature);
         // Ensure the signer matches the registered address
+
+        emit SignerAddressProduced(signer, lenders[signer].publicKey);
         // require(lenders[signer].publicKey.length != 0, "Signer not registered");
         // require(signer == msg.sender, "Signature does not match sender");
         
@@ -123,11 +134,12 @@ contract LoanOffer is Ownable {
         });   
         
         // All conditions have been met at this point 
-        (bool success, ) = transferFundsContract.call{value: borrowAmount}("");
-        require(success, "Failed to send Ether");
-        // ITransferFunds(transferFundsContract).transferFunds{value: borrowAmount}();
-    }
 
+        TransferFunds transferFunds = TransferFunds(transferFundsContract);
+        transferFunds.transferFunds{value: msg.value}(targetAddr, borrowAmount);
+
+        users[msg.sender].nonce = nonce;
+    }
 
     function recoverSigner(bytes32 hash, bytes memory signature) private pure returns (address) {
         require(signature.length == 65, "Invalid signature length");

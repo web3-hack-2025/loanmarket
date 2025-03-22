@@ -23,8 +23,9 @@ describe("LoanOffer", function () {
         
         const LoanOffer = await hre.ethers.getContractFactory("LoanOffer");
         
-        loanOfferContract = (await LoanOffer.deploy(transferFundsContract.getAddress()
-        )) as LoanOffer;
+        loanOfferContract = (await LoanOffer.deploy({
+        })) as LoanOffer;
+        loanOfferContract.setTransferFundsContract(transferFundsContract.getAddress());
         await loanOfferContract.waitForDeployment();
     });
 
@@ -93,17 +94,21 @@ describe("LoanOffer", function () {
         const nonce: BigNumberish = 12345;
         const offerHash = hre.ethers.solidityPacked(
             ["string", "uint256", "address", "uint256", "uint256"],
-            ["ASB", 1000000, user1.address, expiryDateUnixSeconds, nonce]
+            ["ASB", 1000000000000, user1.address, expiryDateUnixSeconds, nonce]
         );
         
         // Sign the offer hash
         const signature = await walletASB.signMessage(hre.ethers.getBytes(offerHash));
         try
         {
-            await expect(loanOfferContract.connect(bank1).acceptOffer("ASB", 1000000, user1.address, expiryDateUnixSeconds, 
+            const etherAmount = hre.ethers.parseEther("0.000001");
+            await expect(loanOfferContract.connect(user1).acceptOffer("ASB", 1000000000000, user1.address, expiryDateUnixSeconds, 
                 nonce,
-                signature)).to.emit(transferFundsContract, "Received")
-                .withArgs(transferFundsContract.getAddress(), 1000000);;
+                signature,{value: etherAmount}))
+                .to.emit(transferFundsContract, "Received")
+                .withArgs(loanOfferContract.getAddress(), 1000000000000)
+                .to.emit(loanOfferContract, "SignerAddressProduced")
+                .withArgs(bank1.address, walletASB.publicKey);;
         }
         catch(err)
         {
