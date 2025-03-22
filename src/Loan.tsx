@@ -81,21 +81,8 @@ function Loan() {
           <ConnectWalletButton />
         </div>
 
-        {/* Action Bar */}
-        <div className="flex w-full items-center justify-between self-start m-7">
-          <div className="flex items-center gap-4">
-            <div id="buy-header-menu" className="relative">
-            <Link 
-                className={buttonVariants({ variant: "outline"})}
-                to="/apply"
-              >
-                Apply for a Loan
-              </Link>
-            </div>
-            
-           
-          </div>
-        </div>
+
+       
 
         {/* Loan List or Empty State */}
         <div className="px-7">
@@ -163,16 +150,35 @@ function Loan() {
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="flex justify-center mt-8">
-                <Link 
-                  className={buttonVariants({ variant: "outline"})}
-                  to="/apply"
-                >
-                  Apply for Another Loan
+                <Link to="/apply" className="block">
+                  <div className="bg-white dark:bg-gray-800 h-full rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 hover:bg-gray-950 cursor-pointer">
+                    <div className="p-6 flex flex-col h-full ">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
+                          <CirclePlus className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">Apply for a New Loan</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Get additional financing</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-400 mt-1 flex-grow">
+                        Access flexible financing with competitive rates, 
+                        loan amounts up to $100,000 NZDD, and terms from 12-60 months.
+                      </p>
+                      
+                      <div className="flex justify-start mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <span className={buttonVariants({ variant: "default" })}>
+                          Apply Now
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </Link>
               </div>
+              
+        
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
