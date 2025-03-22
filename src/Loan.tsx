@@ -1,50 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
-  Home,
-  CreditCard,
-  UserSquare,
-  RefreshCw,
-  Compass,
   CirclePlus,
   ChevronDown,
 } from "lucide-react";
 import { ConnectWalletButton } from "./components/web3/simplekit";
-
-interface SidebarItemProps {
-  href: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  isActive?: boolean;
-  isMuted?: boolean;
-  onClick?: () => void;
-}
-
-function SidebarItem({
-  href,
-  icon,
-  children,
-  isActive = false,
-  isMuted = false,
-  onClick,
-}: SidebarItemProps) {
-  return (
-    <Link
-      to={href}
-      onClick={onClick}
-      className={cn(
-        "group flex items-center py-2 hover:bg-muted/50 relative rounded-md px-2",
-        isActive ? "text-primary font-semibold" : isMuted ? "text-muted-foreground" : "text-foreground"
-      )}
-    >
-      <div className="flex justify-center items-center mr-2">
-        {icon}
-      </div>
-      <span className="truncate">{children}</span>
-    </Link>
-  );
-}
+import { Sidebar } from "./components/sidebar";
 
 interface ActionButtonProps {
   href?: string;
@@ -83,43 +44,7 @@ function Loan() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <div className="group z-10 hidden md:block bg-card border-r border-border sticky top-0 h-screen overflow-hidden">
-        <div className="flex flex-col h-full">
-          <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">
-            <Link to="/" className="outline-none">
-              <h1 className="text-2xl font-bold">Broker</h1>
-            </Link>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
-            <nav className="space-y-3 mt-8 px-4">
-              <SidebarItem href="/" icon={<Home className="h-5 w-5" />} isActive={true}>
-                Dashboard
-              </SidebarItem>
-              
-              <SidebarItem href="/loan" icon={<CreditCard className="h-5 w-5" />}>
-                Loan
-              </SidebarItem>
-              
-              <SidebarItem href="/identity" icon={<UserSquare className="h-5 w-5" />}>
-                Identity
-              </SidebarItem>
-              
-              <div role="button" tabIndex={0} className="relative hover:bg-muted/50 flex items-center gap-2 mt-3 py-2 px-4 text-muted-foreground rounded-md">
-                <RefreshCw className="h-5 w-5" />
-                <span className="truncate select-none font-medium">
-                  Move crypto
-                </span>
-              </div>
-              
-              <SidebarItem href="/explore/tokens" icon={<Compass className="h-5 w-5" />} isMuted={true}>
-                Discover
-              </SidebarItem>
-            </nav>
-          </div>
-        </div>
-      </div>
+      <Sidebar/>
 
       {/* Main Content */}
       <section className="flex-1 overflow-y-auto">
