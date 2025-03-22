@@ -69,7 +69,7 @@ export function Sidebar({
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "group z-[10] sticky top-0 h-screen overflow-hidden w-64 ",
+          "group z-[10] sticky top-0 h-screen overflow-hidden w-64 max-md:hidden ",
           className
         )}
         {...props}

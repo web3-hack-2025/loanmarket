@@ -1,4 +1,4 @@
-# Digital Loan Marketplace
+# Loan Market
 
 A responsive web application for applying and securing loans with identity verification
 
@@ -49,7 +49,7 @@ A responsive web application for applying and securing loans with identity verif
 
 ## Scripts
 
-- `npm run dev` - Start the development server
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run preview` - Preview the production build
+- `pnpm dev` - Start the development server
+- `pnpm build` - Build for production
+- `pnpm lint` - Run ESLint
+- `pnpm preview` - Preview the production build
