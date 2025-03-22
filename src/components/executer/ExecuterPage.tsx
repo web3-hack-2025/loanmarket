@@ -258,8 +258,11 @@ export function ExecuterPage() {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Transaction sent</span>
+                          <div className="flex items-center">
+                    <Spinner className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+              
                           <span>{confirmationsData ?? "?"} of {requiredConfirmations} confirmations</span>
-                        </div>
+                          </div></div>
                         <Progress 
                           value={((Number(confirmationsData  ?? 0)) / requiredConfirmations) * 100} 
                           className="h-2 bg-yellow-200 dark:bg-yellow-900"
@@ -273,9 +276,7 @@ export function ExecuterPage() {
                     )}
                   </AlertDescription>
                   </div>
-                  <div className="flex items-center">
-                    <Spinner className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
-                  </div>
+               
                 </Alert>
               )}
 

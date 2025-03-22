@@ -1,9 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import ShaderBackground2 from "./components/ShaderBackground2"
 import { ConnectWalletButton } from "@/components/web3/simplekit";
+import { buttonVariants } from "./components/ui/button";
+import { Link } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   function onConnectWallet() {
     console.log("Connect Wallet");
@@ -13,6 +18,47 @@ const Landing = () => {
 
   return (
     <>
+      {/* Fancy Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center">
+        
+              <span className="ml-2 text-xl font-bold ">Loan Market</span>
+            </div>
+            
+          
+            
+            {/* Connect Wallet (Desktop) */}
+            <div className="hidden md:block">
+              <ConnectWalletButton variant="default" onConnectedClick={onConnectWallet} />
+            </div>
+            
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden text-white p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
+          
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden pt-4 pb-3 border-t border-white/10 mt-3 space-y-3">
+              <Link to="/" className="block text-white/90 hover:text-white py-2 transition-colors">Home</Link>
+              <Link to="/loan" className="block text-white/90 hover:text-white py-2 transition-colors">Loans</Link>
+              <Link to="/identity" className="block text-white/90 hover:text-white py-2 transition-colors">Identity</Link>
+              <Link to="/apply" className="block text-white/90 hover:text-white py-2 transition-colors">Apply Now</Link>
+              <div className="pt-2">
+                <ConnectWalletButton variant="default" onConnectedClick={onConnectWallet} />
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
       <ShaderBackground2/>
       <section className="z-[20] absolute inset-0 flex flex-col items-center justify-center">
         <div className=" flex flex-col items-center justify-center p-12 ">

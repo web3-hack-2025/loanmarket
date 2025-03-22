@@ -13,6 +13,7 @@ import Landing from "./Landing.tsx";
 import { Web3Provider } from "./components/web3/web3-provider.tsx";
 import WalletBouncer from "./components/web3/wallet-bouncer.tsx";
 import { ExecuterPage } from "./components/executer/ExecuterPage.tsx";
+import { MobileHeader } from "./components/MobileHeader";
 
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
@@ -61,6 +62,7 @@ if (root) {
           persistOptions={{ persister }}
         >
           <BrowserRouter>
+            <MobileHeader />
             <Routes>
               <Route 
                 path="/" 
