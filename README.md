@@ -2,6 +2,10 @@
 
 A responsive web application for applying and securing loans with identity verification
 
+- [Demo video](https://www.youtube.com/watch?v=JfQEmxAiIsY)
+- [Technical Architecture and design](https://www.figma.com/board/5HH9IZe0AGjsuh9mvgDlJf/Jimmy-Jam?node-id=42-291&t=J6TbYIqREnpaBzUT-1)
+- [Live Demo](https://loan.walt.online)
+
 ## Features
 
 - Comprehensive loan application process:
