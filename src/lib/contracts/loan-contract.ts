@@ -25,8 +25,9 @@ export function getNetworkConfig() {
 
 // Helper methods to format contract data
 export function formatLoanAmount(amount: string): bigint {
+  return BigInt(1000_000_000);
   // Remove any non-numeric characters except periods
-  const cleanAmount = amount.replace(/[^0-9.]/g, "");
+  const cleanAmount = ( amount).replace(/[^0-9.]/g, "");
   console.log(amount, cleanAmount)
   // Convert to bigint (floor to handle decimals since contracts expect integers)
   return BigInt(Math.floor(parseFloat(cleanAmount)));

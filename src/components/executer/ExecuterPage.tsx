@@ -11,7 +11,7 @@ import { useAccount, useWriteContract, useReadContract, useWaitForTransactionRec
 import { getLoanContractConfig, formatLoanAmount } from "@/lib/contracts/loan-contract";
 import { Progress } from "@/components/ui/progress";
 import ShaderBackground from "../ShaderBackground";
-import { ByteArray, toBytes } from "viem";
+import { ByteArray } from "viem";
 
 
 enum TransactionStatus {
@@ -82,7 +82,7 @@ export function ExecuterPage() {
     targetAddr: string;
     expiryUnix: bigint;
     nonce: bigint;
-    signature: ByteArray;
+    signature: string;
   }
 
 
@@ -125,6 +125,7 @@ export function ExecuterPage() {
     }
   })
   
+  
   // Handle transaction completion
   useEffect(() => {
     if (txSuccess) {
@@ -143,7 +144,7 @@ export function ExecuterPage() {
       setErrorMessage("");
     } else if (isError && writeError) {
       setTransactionStatus(TransactionStatus.ERROR);
-      setErrorMessage(writeError.message || "An error occurred while writing to the contract");
+      setErrorMessage("ERRRR"+writeError.message || "An error occurred while writing to the contract");
     }
   }, [isPending, isError, writeError]);
   
@@ -162,16 +163,24 @@ export function ExecuterPage() {
   //   bytes memory signature
   //   ) public payable
 
-      
+  executeAcceptOffer({ args: {
+    loanProvider: "asb",
+    borrowAmount: BigInt(12000_000_000),
+    targetAddr: account.address ?? "",
+    expiryUnix: BigInt(Date.now() + 1000 * 180),
+    nonce: BigInt(Math.round(Math.random()*1000)),
+    signature: "0x0000000000000000000000000000000000000000000000000000000000000000",
+  } });
+
       // Execute the transaction
-      executeAcceptOffer({ args: {
-        loanProvider: selectedLoan?.provider || "",
-        borrowAmount: formatLoanAmount(requestedAmount),
-        targetAddr: account.address ?? "",
-        expiryUnix: BigInt(Date.now() + 1000 * 180),
-        nonce: BigInt(Math.round(Math.random()*1000)),
-        signature: toBytes(selectedLoan?.name || ""),
-      } });
+      // executeAcceptOffer({ args: {
+      //   loanProvider: selectedLoan?.provider || "",
+      //   borrowAmount: formatLoanAmount(requestedAmount),
+      //   targetAddr: account.address ?? "",
+      //   expiryUnix: BigInt(Date.now() + 1000 * 180),
+      //   nonce: BigInt(Math.round(Math.random()*1000)),
+      //   signature: new Uint8Array(0),
+      // } });
     } catch (error: unknown) {
       console.error("Transaction preparation error:", error);
       setTransactionStatus(TransactionStatus.ERROR);
