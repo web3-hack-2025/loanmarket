@@ -90,7 +90,7 @@ function Loan() {
             <div className="space-y-6">
               <h2 className="text-xl font-semibold">Your Active Loans ({completedLoans.length})</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
                 {completedLoans.map((loan) => (
                   <div 
                     key={loan.id} 
