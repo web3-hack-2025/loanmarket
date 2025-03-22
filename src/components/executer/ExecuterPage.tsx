@@ -87,8 +87,10 @@ export function ExecuterPage() {
 
   const {data: confirmationsData} = useTransactionConfirmations({
     hash: txData,
+
     query: {
-      enabled: !!txData,
+      enabled: !!(txData) && !txSuccess,
+      refetchInterval: 1000,
     }
   })
   
@@ -237,7 +239,9 @@ export function ExecuterPage() {
                         />
                         <p className="text-xs mt-1">
                           Transaction hash: <span className="font-mono break-all">{txData}</span>
+                          {confirmationsData?.toString()} Confirmations
                         </p>
+
                       </div>
                     )}
                   </AlertDescription>
