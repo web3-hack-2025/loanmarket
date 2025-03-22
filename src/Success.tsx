@@ -7,7 +7,16 @@ import { getProviderLogo } from "./components/loans-table";
 export function Success() {
   const navigate = useNavigate();
   // Get loan information from context
-  const { requestedAmount, termLength, selectedLoan, addCompletedLoan } = useLoan();
+  const { 
+    requestedAmount, 
+    termLength, 
+    selectedLoan, 
+    formatCurrency,
+    getTotalInterest,
+    getTotalRepayment,
+    getInterestRateDecimal,
+    addCompletedLoan
+  } = useLoan();
 
   // Animation states
   const [showSuccessText, setShowSuccessText] = useState(false);
@@ -62,12 +71,6 @@ export function Success() {
       clearTimeout(contentTimer);
     };
   }, []);
-
-  // Get interest rate as a decimal
-  const getInterestRateDecimal = () => {
-    if (!selectedLoan?.interestRate) return 0.035; // Default to 3.5%
-    return parseFloat(selectedLoan.interestRate.replace(/%/g, "")) / 100;
-  };
 
   return (
     <div className="min-h-screen flex flex-col relative">
