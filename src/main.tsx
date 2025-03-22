@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from "./Loan.tsx";
+import Loan from "./Loan.tsx";
 import Result from "./Result.tsx";
 import Identity from "./Identity.tsx";
 import Apply from "./Apply.tsx";
@@ -39,7 +39,7 @@ if (root) {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/loan" element={<WalletBouncer><App /></WalletBouncer>} />
+              <Route path="/loan" element={<WalletBouncer><Loan /></WalletBouncer>} />
 
               <Route path="/apply" element={<WalletBouncer><Apply /></WalletBouncer>} />
               <Route path="/result" element={<WalletBouncer><Result /></WalletBouncer>} />

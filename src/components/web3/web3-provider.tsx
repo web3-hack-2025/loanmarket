@@ -4,7 +4,7 @@
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http, createConfig } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 import { injected, coinbaseWallet, walletConnect } from "wagmi/connectors";
 import { SimpleKitProvider } from "@/components/web3/simplekit";
 
@@ -15,14 +15,14 @@ const projectId = import.meta.env.VITE_WALLET_CONNECT_KEY;
 
 // 2. Define your Wagmi config
 const config = createConfig({
-  chains: [mainnet],
+  chains: [sepolia],
   connectors: [
     injected({ target: "metaMask" }),
     coinbaseWallet(),
     walletConnect({ projectId }),
   ],
   transports: {
-    [mainnet.id]: http(),
+    [sepolia.id]: http(),
   },
 });
 

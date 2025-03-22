@@ -10,6 +10,7 @@ import {
   CirclePlus,
   ChevronDown,
 } from "lucide-react";
+import { ConnectWalletButton } from "./components/web3/simplekit";
 
 interface SidebarItemProps {
   href: string;
@@ -78,7 +79,7 @@ function ActionButton({ href, icon, children, onClick }: ActionButtonProps) {
   );
 }
 
-function App() {
+function Loan() {
 
   return (
     <div className="min-h-screen flex">
@@ -122,8 +123,9 @@ function App() {
 
       {/* Main Content */}
       <section className="flex-1 overflow-y-auto">
-        <div className="m-6">
+        <div className="p-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Loans</h1>
+          <ConnectWalletButton />
         </div>
 
         {/* Action Bar */}
@@ -293,4 +295,4 @@ function App() {
   );
 }
 
-export default App;
+export default Loan;
