@@ -47,7 +47,7 @@ contract LoanOffer is Ownable {
 
     function addUserToSystem() public
     {
-        require(users[msg.sender].nonce == UNCLAIMED_OFFER_NONCE, "User already registered");
+        require(users[msg.sender].nonce != UNCLAIMED_OFFER_NONCE, "User already registered");
 
         users[msg.sender].walletAddress = msg.sender;
         users[msg.sender].nonce = UNCLAIMED_OFFER_NONCE;
