@@ -163,7 +163,7 @@ function Loan() {
                         </div>
                       </div>
                       
-                      <p className="text-gray-600 dark:text-gray-400 mt-1 flex-grow">
+                      <p className="text-gray-600 dark:text-gray-400 mt-1 mb-3 flex-grow">
                         Access flexible financing with competitive rates, 
                         loan amounts up to $100,000 NZDD, and terms from 12-60 months.
                       </p>
