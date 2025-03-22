@@ -1,7 +1,3 @@
-import { Sidebar } from "@/components/sidebar";
-import { Header } from "@/components/header";
-import { LoansTable } from "./components/loans-table";
-
 function App() {
   return (
     <div className="min-h-screen flex">
@@ -9,7 +5,7 @@ function App() {
         <div className="flex flex-col h-full">
           <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">
             <a className="outline-none" href="/">
-            <h1 className="text-2xl font-bold">Broker</h1>
+              <h1 className="text-2xl font-bold">Broker</h1>
             </a>
           </div>
 
@@ -90,7 +86,7 @@ function App() {
               </a>
               <div
                 role="button"
-                tabindex="0"
+                tabIndex={0}
                 className="relative hover:bg-hover flex items-center gap-2 mt-3 py-2 px-4 text-[#9fa6ae] "
               >
                 <svg
@@ -109,7 +105,6 @@ function App() {
                 <span className="truncate select-none font-medium">
                   Move crypto
                 </span>
-             
               </div>
               <a
                 id="sidebar-item-sidenav.discover"
@@ -142,73 +137,6 @@ function App() {
                   </svg>
                 </div>
                 <span className="truncate">Discover</span>
-              </a>
-              <a
-                id="sidebar-item-sidenav.card"
-                className="group flex items-center py-2 hover:bg-hover relative text-[#9fa6ae]"
-                href="/card"
-              >
-                <div className="flex justify-center items-center mr-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    className="h-5 w-5 text-[#9fa6ae]"
-                  >
-                    <rect
-                      x="1"
-                      y="4"
-                      width="22"
-                      height="16"
-                      rx="2"
-                      ry="2"
-                    ></rect>
-                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                  </svg>
-                </div>
-                <span className="truncate">Card</span>
-                <div
-                  role="button"
-                  tabindex="0"
-                  className="max-w-max items-center rounded-full py-0.5 sm:py-1.5 cursor-default px-2 border border-info-default bg-info-muted text-info-default mx-3 font-normal inline align-text-bottom text-xs sm:text-xs"
-                >
-                  Pilot
-                </div>
-              </a>
-              <a
-                id="sidebar-item-sidenav.cryptoTax"
-                className="group flex items-center py-2 hover:bg-hover relative text-[#9fa6ae]"
-                href="/tax-hub"
-              >
-                <div className="flex justify-center items-center mr-2">
-                  <svg
-                    width="18"
-                    height="20"
-                    viewBox="0 0 18 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 stroke-icon-[#9fa6ae]"
-                  >
-                    <path
-                      d="M13 0H5C2.24 0 0 2.24 0 5V15C0 17.76 2.24 20 5 20H13C15.76 20 18 17.76 18 15V5C18 2.24 15.76 0 13 0ZM5.86 16.63C5.67 16.82 5.42 16.92 5.16 16.92C4.89 16.92 4.64 16.82 4.45 16.63C4.26 16.44 4.15 16.19 4.15 15.92C4.15 15.66 4.26 15.4 4.45 15.21C4.72 14.93 5.17 14.85 5.54 15C5.6 15.05 5.66 15.12 5.71 15.21C5.77 15.4 5.82 15.66 5.86 15.92C6.05 16.19 6.16 16.44 5.86 16.63ZM9.86 12.63C9.67 12.82 9.42 12.92 9.15 12.92C8.89 12.92 8.64 12.82 8.45 12.63C8.26 12.44 8.15 12.19 8.15 11.92C8.15 11.66 8.26 11.4 8.45 11.21C8.82 10.84 9.49 10.84 9.86 11.21C9.95 11.31 10.03 11.41 10.08 11.54C10.13 11.66 10.15 11.79 10.15 11.92C10.15 12.19 10.05 12.44 9.86 12.63ZM6 8.46C4.97 8.46 4.12 7.62 4.12 6.58V5.58C4.12 4.55 4.96 3.7 6 3.7H12C13.03 3.7 13.88 4.54 13.88 5.58V6.58C13.88 7.61 13.04 8.46 12 8.46H6ZM13.86 16.63C13.67 16.82 13.42 16.92 13.15 16.92C13.02 16.92 12.89 16.89 12.77 16.84C12.65 16.79 12.54 16.72 12.45 16.63C12.26 16.44 12.16 16.19 12.16 15.92C12.16 15.66 12.26 15.4 12.45 15.21C12.72 14.93 13.17 14.85 13.54 15C13.66 15.05 13.77 15.12 13.86 15.21C14.05 15.4 14.15 15.66 14.15 15.92C14.15 16.19 14.05 16.44 13.86 16.63ZM14.08 12.3C14.03 12.42 13.96 12.53 13.86 12.63C13.67 12.82 13.42 12.92 13.15 12.92C12.89 12.92 12.64 12.82 12.45 12.63C12.26 12.44 12.15 12.19 12.15 11.92C12.15 11.66 12.26 11.4 12.45 11.21C12.82 10.84 13.49 10.84 13.86 11.21C14.05 11.4 14.16 11.66 14.16 11.92C14.16 12.05 14.13 12.18 14.08 12.3Z"
-                      className="fill-[#9fa6ae]"
-                    ></path>
-                  </svg>
-                </div>
-                <span className="truncate">Tax Hub</span>
-                <div
-                  role="button"
-                  tabindex="0"
-                  className="max-w-max items-center rounded-full py-0.5 sm:py-1.5 cursor-default px-2 border border-info-default bg-info-muted text-info-default mx-3 font-normal inline align-text-bottom text-xs sm:text-xs"
-                >
-                  Beta
-                </div>
               </a>
             </nav>
           </div>
@@ -377,19 +305,47 @@ function App() {
         <div className="px-7">
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-6">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto text-gray-400">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8.5 12H14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12.5 15L15.5 12L12.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="mx-auto text-gray-400"
+              >
+                <path
+                  d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8.5 12H14.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12.5 15L15.5 12L12.5 9"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2 dark:text-white">No active loans</h3>
+            <h3 className="text-xl font-semibold mb-2 dark:text-white">
+              No active loans
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-              You don't have any active loans at the moment. Apply for a loan to get started with your financial journey.
+              You don't have any active loans at the moment. Apply for a loan to
+              get started with your financial journey.
             </p>
-            <button 
+            <button
               className="px-5 py-2 rounded-full border flex items-center justify-center text-center text-sm border-primary-default bg-primary-default text-primary-inverse hover:border-primary-default-hover hover:bg-primary-default-hover"
-              onClick={() => window.location.href = '/apply'}
+              onClick={() => (window.location.href = "/apply")}
             >
               Apply for a Loan
             </button>

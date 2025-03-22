@@ -1,43 +1,56 @@
 import ReactDOM from "react-dom/client";
-import './index.css'
+import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from './App.tsx'
+import App from "./App.tsx";
 import Result from "./Result.tsx";
-import Rejected from "./rejected.tsx";
 import Identity from "./Identity.tsx";
 import Apply from "./Apply.tsx";
 import Application from "./Application.tsx";
+import Success from "./Success.tsx";
+import { LoanProvider } from "./context/LoanContext.tsx";
+import { IdentityProvider } from "./context/IdentityContext";
+import Landing from "./Landing.tsx";
+import { Web3Provider } from "./components/web3-provider.tsx";
 
 // Force dark mode regardless of user's system preference
-document.documentElement.classList.add('dark')
+document.documentElement.classList.add("dark");
 
 // Prevent system preference from overriding dark mode
 const forceDarkMode = () => {
-  document.documentElement.classList.add('dark')
-}
+  document.documentElement.classList.add("dark");
+};
 
 // Add event listener to ensure dark mode persists
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', forceDarkMode)
+window
+  .matchMedia("(prefers-color-scheme: light)")
+  .addEventListener("change", forceDarkMode);
 
 // Initial call to force dark mode
-forceDarkMode()
+forceDarkMode();
 
 const root = document.getElementById("root");
 
 if (root) {
   ReactDOM.createRoot(root).render(
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/loan" element={<App />} />
+    <Web3Provider>
+      <LoanProvider>
+        <IdentityProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/loan" element={<App />} />
 
-        <Route path="/apply" element={<Apply />} />
-        <Route path="/result" element={<Result />} />
-        <Route path="/offers" element={<Application />} />
+              <Route path="/apply" element={<Apply />} />
+              <Route path="/result" element={<Result />} />
+              <Route path="/offers" element={<Application />} />
+              <Route path="/success" element={<Success />} />
 
-        <Route path="/identity" element={<Identity />} />
-      </Routes>
-    </BrowserRouter>
+              <Route path="/identity" element={<Identity />} />
+            </Routes>
+          </BrowserRouter>
+        </IdentityProvider>
+      </LoanProvider>
+    </Web3Provider>
   );
 } else {
   console.error("Root element not found");

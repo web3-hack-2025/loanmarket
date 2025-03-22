@@ -100,7 +100,7 @@ function Application() {
               </a>
               <div
                 role="button"
-                tabindex="0"
+                tabIndex={0}
                 className="relative hover:bg-hover flex items-center gap-2 mt-3 py-2 px-4 text-[#9fa6ae] "
               >
                 <svg
@@ -185,7 +185,7 @@ function Application() {
                 <span className="truncate">Card</span>
                 <div
                   role="button"
-                  tabindex="0"
+                  tabIndex={0}
                   className="max-w-max items-center rounded-full py-0.5 sm:py-1.5 cursor-default px-2 border border-info-default bg-info-muted text-info-default mx-3 font-normal inline align-text-bottom text-xs sm:text-xs"
                 >
                   Pilot
@@ -214,7 +214,7 @@ function Application() {
                 <span className="truncate">Tax Hub</span>
                 <div
                   role="button"
-                  tabindex="0"
+                  tabIndex={0}
                   className="max-w-max items-center rounded-full py-0.5 sm:py-1.5 cursor-default px-2 border border-info-default bg-info-muted text-info-default mx-3 font-normal inline align-text-bottom text-xs sm:text-xs"
                 >
                   Beta
