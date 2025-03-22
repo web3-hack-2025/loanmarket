@@ -67,7 +67,7 @@ const Landing = () => {
             {[
               {
                 quote: "This platform revolutionized how we access loans. The application process is so streamlined compared to traditional banks.",
-                author: "Russel Bloxwich",
+                author: "Russell Bloxwich",
                 role: "Developer @ Coalesce"
               },
               {
