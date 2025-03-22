@@ -8,7 +8,7 @@ const Landing = () => {
   function onConnectWallet() {
     console.log("Connect Wallet");
     // go to apply
-    navigate("/apply");
+    navigate("/loan");
   }
 
   return (
