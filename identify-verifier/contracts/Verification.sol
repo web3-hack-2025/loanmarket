@@ -3,16 +3,12 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title DigitalSignatureWhitelist
  * @notice Validates whitelisted addresses using digital signatures
  */
-
-// interface ITransferFunds{
-    // function transferFunds() external payable;
-// }
-
 contract TransferFunds 
 {
     event Received(address sender, uint256 amount);
@@ -107,7 +103,7 @@ contract LoanOffer is Ownable {
         uint256 expiryUnix,
         uint256 nonce,
         bytes memory signature
-        ) public payable
+        ) public
     {
 
         require(msg.sender == targetAddr, "Offer is not for this user");        
@@ -125,19 +121,17 @@ contract LoanOffer is Ownable {
         // require(lenders[signer].publicKey.length != 0, "Signer not registered");
         // require(signer == msg.sender, "Signature does not match sender");
         
-        Offer memory offer = Offer({
-            loanProvider: loanProvider,
-            borrowAmount: borrowAmount,
-            targetAddr: targetAddr,
-            expiryUnix: expiryUnix,
-            nonce: nonce
-        });   
+        // Offer memory offer = Offer({
+        //     loanProvider: loanProvider,
+        //     borrowAmount: borrowAmount,
+        //     targetAddr: targetAddr,
+        //     expiryUnix: expiryUnix,
+        //     nonce: nonce
+        // });   
         
         // All conditions have been met at this point 
-
-        TransferFunds transferFunds = TransferFunds(transferFundsContract);
-        transferFunds.transferFunds{value: msg.value}(targetAddr, borrowAmount);
-
+        IERC20 nzdd = IERC20(transferFundsContract);
+        nzdd.transfer(msg.sender, borrowAmount);
         users[msg.sender].nonce = nonce;
     }
 

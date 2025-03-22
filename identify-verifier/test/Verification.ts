@@ -4,11 +4,13 @@ import hre from 'hardhat'
 import { Contract, BigNumberish, BytesLike } from 'ethers'
 import { LoanOffer } from "../typechain-types/contracts/Verification.sol/LoanOffer"
 import { TransferFunds } from "../typechain-types/contracts/Verification.sol/TransferFunds"
+import { MockNZDD } from "../typechain-types/contracts/MockNZDD"
 import * as assert from 'assert';
 
 describe("LoanOffer", function () {
   let loanOfferContract: LoanOffer;
   let transferFundsContract: TransferFunds;
+  let nzddContract: MockNZDD;
   let user1: any, user2: any;
   let bank1: any, bank2: any, bank3: any;
 
@@ -20,13 +22,20 @@ describe("LoanOffer", function () {
         const TransferFunds = await hre.ethers.getContractFactory("TransferFunds");
         transferFundsContract = (await TransferFunds.deploy({})) as TransferFunds;
         await transferFundsContract.waitForDeployment();
-        
+
+
+        const MockNZDD = await hre.ethers.getContractFactory("MockNZDD");
+        nzddContract = (await MockNZDD.deploy({})) as MockNZDD;
+        await nzddContract.waitForDeployment();
+
         const LoanOffer = await hre.ethers.getContractFactory("LoanOffer");
-        
-        loanOfferContract = (await LoanOffer.deploy({
-        })) as LoanOffer;
+        loanOfferContract = (await LoanOffer.deploy({})) as LoanOffer;
         loanOfferContract.setTransferFundsContract(transferFundsContract.getAddress());
         await loanOfferContract.waitForDeployment();
+
+
+        loanOfferContract.setTransferFundsContract(nzddContract.getAddress());
+        nzddContract.transfer(loanOfferContract.getAddress(), 1000000 * 10**6)
     });
 
     it("Should allow a user to add themselves to system", async function () {
@@ -89,7 +98,7 @@ describe("LoanOffer", function () {
         await loanOfferContract.connect(bank2).addLoanProviderToSystem("ANZ", walletANZ.publicKey);
         await loanOfferContract.connect(user1).addUserToSystem();
         await loanOfferContract.connect(user2).addUserToSystem();
-        let expiryDateUnixSeconds: number = Date.now() + 1000 * 180;
+        let expiryDateUnixSeconds: number = 17426713931;
 
         const nonce: BigNumberish = 12345;
         const offerHash = hre.ethers.solidityPacked(
@@ -98,15 +107,15 @@ describe("LoanOffer", function () {
         );
         
         // Sign the offer hash
-        const signature = await walletASB.signMessage(hre.ethers.getBytes(offerHash));
+        const signature = await walletASB.signMessage(hre.ethers.getBytes(hre.ethers.keccak256(offerHash)));
         try
         {
             const etherAmount = hre.ethers.parseEther("0.000001");
             await expect(loanOfferContract.connect(user1).acceptOffer("ASB", 1000000000000, user1.address, expiryDateUnixSeconds, 
                 nonce,
-                signature,{value: etherAmount}))
-                .to.emit(transferFundsContract, "Received")
-                .withArgs(loanOfferContract.getAddress(), 1000000000000)
+                signature))
+                .to.emit(nzddContract, "Transfer")
+                .withArgs(loanOfferContract.getAddress(),user1.address, 1000000000000)
                 .to.emit(loanOfferContract, "SignerAddressProduced")
                 .withArgs(bank1.address, walletASB.publicKey);;
         }
