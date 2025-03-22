@@ -13,6 +13,7 @@ import { createSign, publicEncrypt } from "crypto";
 import { db } from "./db";
 import { blobsTable } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { errorResponse, loansRequest } from "./lib";
 
 if (!process.env.KEY_PAIR) {
   throw new Error("Could not get key pair, please set KEY_PAIR in env vars");
@@ -51,25 +52,9 @@ app.after(() => {
     "/bundle",
     {
       schema: {
-        body: z.object({
-          key: z.string(),
-          body: z.record(
-            z.string(),
-            z
-              .object({
-                type: z.literal("credential"),
-                value: z.string(),
-              })
-              .or(
-                z.object({
-                  type: z.literal("file"),
-                  mimeType: z.string(),
-                  content: z.string(),
-                }),
-              ),
-          ),
-        }),
+        body: loansRequest,
         response: {
+          400: errorResponse("Credentials revoked"),
           200: z.object({
             blob: z.string(),
             signature: z.string(),
@@ -78,24 +63,20 @@ app.after(() => {
       },
     },
     async (request) => {
-      const { body, key } = request.body;
-      const blobString = JSON.stringify(body);
-
-      const blob = publicEncrypt(key, blobString).toString("base64");
-      const sign = createSign("RSA-SHA256");
-      sign.update(blob);
-
-      const signature = sign.sign(keyPair).toString("base64url");
-
-      await db.insert(blobsTable).values({
-        signature,
-        blob,
-      });
-
-      return {
-        blob,
-        signature,
-      };
+      // const { body, key } = request.body;
+      // const blobString = JSON.stringify(body);
+      // const blob = publicEncrypt(key, blobString).toString("base64");
+      // const sign = createSign("RSA-SHA256");
+      // sign.update(blob);
+      // const signature = sign.sign(keyPair).toString("base64url");
+      // await db.insert(blobsTable).values({
+      //   signature,
+      //   blob,
+      // });
+      // return {
+      //   blob,
+      //   signature,
+      // };
     },
   );
 
@@ -108,7 +89,7 @@ app.after(() => {
         }),
         response: {
           200: z.object({ blob: z.string() }),
-          404: z.object({ error: z.literal("Could not find blob") }),
+          404: errorResponse("Could not find blob"),
         },
       },
     },
