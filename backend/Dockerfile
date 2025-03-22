@@ -5,4 +5,4 @@ WORKDIR /app
 COPY ./backend/package.json ./backend/pnpm-lock.yaml ./
 RUN pnpm i
 COPY ./backend .
-CMD ["./start.sh"]
+ENTRYPOINT ["./start.sh"]
