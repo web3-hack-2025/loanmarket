@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import App from "./App.tsx";
+import App from "./Loan.tsx";
 import Result from "./Result.tsx";
 import Identity from "./Identity.tsx";
 import Apply from "./Apply.tsx";
