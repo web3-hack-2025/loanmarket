@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLoan } from "./hooks/useLoan";
 
 // Define types for our application
 interface ExistingIdentity {
@@ -336,9 +337,22 @@ const ApplicationDetailsStep = ({
   onNext: () => void;
   onPrev: () => void;
 }) => {
+  const { setRequestedAmount, setTermLength } = useLoan();
+
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    
+    // If the loan amount is changing, update the context
+    if (name === "loanAmount") {
+      setRequestedAmount(value);
+    }
+    
+    // If the term length is changing, update the context
+    if (name === "termLength") {
+      setTermLength(value);
+    }
+    
     setPersonalInfo({
       ...personalInfo,
       [name]: value
@@ -623,6 +637,7 @@ const ConfirmationStep = ({
 function Apply() {
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
+  const { setRequestedAmount, setTermLength } = useLoan();
 
   // Application data
   const [applicationType, setApplicationType] = useState("");
@@ -653,6 +668,11 @@ function Apply() {
 
   // Handle submit application
   const submitApplication = () => {
+    // Save the loan amount to context before navigating
+    setRequestedAmount(personalInfo.loanAmount);
+    // Save the term length to context before navigating
+    setTermLength(personalInfo.termLength);
+    
     // TO DO: Implement application submission logic
     console.log("Application submitted!");
     // Navigate to the result page

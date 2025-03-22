@@ -20,9 +20,25 @@ function Identity() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [pageOpacity, setPageOpacity] = useState(0);
 
   useEffect(() => {
     document.title = "Identity Credentials | NZDD";
+    
+    // Simulate loading delay
+    const loadingTimer = setTimeout(() => {
+      setPageLoading(false);
+      
+      // Start fade-in animation after loading completes
+      const fadeInTimer = setTimeout(() => {
+        setPageOpacity(1);
+      }, 100);
+      
+      return () => clearTimeout(fadeInTimer);
+    }, 2000);
+    
+    return () => clearTimeout(loadingTimer);
   }, []);
 
   // Existing identities data
@@ -124,7 +140,7 @@ function Identity() {
   };
 
   return (
-    <div className="flex  h-screen ">
+    <div className={`flex h-screen ${pageLoading ? 'opacity-0' : `opacity-${pageOpacity}`} transition-opacity duration-1000`}>
       <div className="group z-[10] hidden md:block bg-[#141618] border-r border-muted sticky top-0 h-screen overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">

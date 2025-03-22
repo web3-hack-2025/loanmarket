@@ -1,11 +1,62 @@
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { LoansTable } from "./components/loans-table";
-import { useState } from "react";
+import { getProviderLogo } from "./components/loans-table";
+import { useState, useEffect } from "react";
+import { useLoan } from "./hooks/useLoan";
+import { useNavigate } from "react-router-dom";
+
+// Define the Loan interface to match the one in loans-table.tsx
+interface Loan {
+  id: string;
+  name: string;
+  provider: string;
+  interestRate: string;
+  term: string;
+  collateralRequired: string;
+  maxAmount: string;
+  status: "available" | "limited" | "coming soon";
+}
 
 function Result() {
-  const [loanAmount, setLoanAmount] = useState("10000");
-  const [loanTerm, setLoanTerm] = useState("6");
+  // Get loan amount from context
+  const { requestedAmount, termLength: contextTermLength, selectedLoan, setSelectedLoan } = useLoan();
+  const navigate = useNavigate();
+  
+  // Define loan amount state with a default value or from context
+  const [loanAmount, setLoanAmount] = useState(requestedAmount ? requestedAmount : "10000");
+  const [loanTerm, setLoanTerm] = useState(contextTermLength ? contextTermLength : "6");
+  
+  // Update loan amount when context changes
+  useEffect(() => {
+    if (requestedAmount) {
+      setLoanAmount(requestedAmount);
+    }
+    if (contextTermLength) {
+      setLoanTerm(contextTermLength);
+    }
+  }, [requestedAmount, contextTermLength]);
+
+  // Create a default loan object for the "Accept Offer & Continue" button
+  const handleAcceptOffer = () => {
+    // Create a default loan object with the current values
+    const defaultLoan: Loan = {
+      id: "default-loan",
+      provider: selectedLoan?.provider || "NZ Bank",
+      name: selectedLoan?.name || "Personal Loan",
+      interestRate: selectedLoan?.interestRate || "3.5%",
+      term: `${loanTerm} months`,
+      collateralRequired: "None",
+      maxAmount: selectedLoan?.maxAmount || "50000",
+      status: "available"
+    };
+    
+    // Set the selected loan in context
+    setSelectedLoan(defaultLoan);
+    
+    // Navigate to success page
+    navigate("/success");
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -115,7 +166,7 @@ function Result() {
                   className=""
                 >
                   <path
-                    d="M16.9958 6.165H14.2775C13.7342 6.165 13.4625 6.82167 13.8467 7.20583L14.7308 8.09L13.4625 9.35833C12.2558 8.40583 10.7367 7.83167 9.08417 7.83167C5.1775 7.83167 2 11.0092 2 14.915C2 18.8208 5.1775 21.9983 9.08333 21.9983C12.9892 21.9983 16.1667 18.8208 16.1667 14.915C16.1667 13.2617 15.5933 11.7433 14.64 10.5367L15.9083 9.26833L16.7925 10.1525C17.1767 10.5367 17.8333 10.2642 17.8333 9.72167V7.00333C17.8333 6.54083 17.4583 6.165 16.9958 6.165ZM9.08333 20.3317C6.09667 20.3317 3.66667 17.9017 3.66667 14.915C3.66667 11.9283 6.09667 9.49833 9.08333 9.49833C12.07 9.49833 14.5 11.9283 14.5 14.915C14.5 17.9017 12.07 20.3317 9.08333 20.3317ZM22 9.08167C22 11.33 20.9675 13.3958 19.1675 14.7483C19.0175 14.8608 18.8417 14.915 18.6675 14.915C18.4142 14.915 18.1642 14.8 18 14.5825C17.7242 14.215 17.7983 13.6925 18.1658 13.4158C19.5425 12.3817 20.3333 10.8017 20.3333 9.0825C20.3333 6.09583 17.9033 3.66583 14.9167 3.66583C13.1975 3.66583 11.6175 4.45583 10.5825 5.83333C10.3067 6.20083 9.785 6.27417 9.41583 5.99917C9.04833 5.7225 8.97333 5.2 9.25 4.8325C10.6025 3.0325 12.6675 2 14.9167 2C18.8225 2 22 5.1775 22 9.08333V9.08167Z"
+                    d="M16.9958 6.165H14.2775C13.7342 6.165 13.4625 6.82167 13.8467 7.20583L14.7308 8.09L13.4625 9.35833C12.2558 8.40583 10.7367 7.83167 9.08417 7.83167C5.1775 7.83167 2 11.0092 2 14.915C2 18.8208 5.1775 21.9983 9.08333 21.9983C12.9892 21.9983 16.1667 18.8208 16.1667 14.915C16.1667 13.2617 15.5933 11.7433 14.64 10.5367L15.9083 9.26833L16.7925 10.1525C17.1767 10.5367 17.8333 10.2642 17.8333 9.72167V7.00333C17.8333 6.54083 17.4583 6.165 16.9958 6.165ZM9 20.3317C6.096 20.3317 3.666 17.9017 3.666 14.915C3.666 11.928 6.096 9.498 9 9.498C11.904 9.498 14.334 11.928 14.334 14.915C14.334 17.9017 11.904 20.3317 9 20.3317ZM22 9.08167C22 11.33 20.9675 13.3958 19.1675 14.7483C19.0175 14.8608 18.8417 14.915 18.6675 14.915C18.4142 14.915 18.1642 14.8 18 14.5825C17.7242 14.215 17.7983 13.6925 18.1658 13.4158C19.5425 12.3817 20.3333 10.8017 20.3333 9.0825C20.3333 6.09583 17.9033 3.66583 14.9167 3.66583C13.1975 3.66583 11.6175 4.45583 10.5825 5.83333C10.3067 6.20083 9.785 6.27417 9.41583 5.99917C9.04833 5.7225 8.97333 5.2 9.25 4.8325C10.6025 3.0325 12.6675 2 14.9167 2C18.8225 2 22 5.1775 22 9.08333V9.08167Z"
                     className="fill-[#9fa6ae] h-5 w-5 stroke-none"
                   ></path>
                 </svg>
@@ -222,7 +273,7 @@ function Result() {
                     className="h-5 w-5 stroke-icon-[#9fa6ae]"
                   >
                     <path
-                      d="M13 0H5C2.24 0 0 2.24 0 5V15C0 17.76 2.24 20 5 20H13C15.76 20 18 17.76 18 15V5C18 2.24 15.76 0 13 0ZM9 20C6.096 20 3.666 17.901 3.666 14.915C3.666 11.928 6.096 9.498 9 9.498C11.904 9.498 14.334 11.928 14.334 14.915C14.334 17.901 11.904 20 9 20ZM22 9.08167C22 11.33 20.9675 13.3958 19.1675 14.7483C19.0175 14.8608 18.8417 14.915 18.6675 14.915C18.4142 14.915 18.1642 14.8 18 14.5825C17.7242 14.215 17.7983 13.6925 18.1658 13.4158C19.5425 12.3817 20.3333 10.8017 20.3333 9.0825C20.3333 6.09583 17.9033 3.66583 14.9167 3.66583C13.1975 3.66583 11.6175 4.45583 10.5825 5.83333C10.3067 6.20083 9.785 6.27417 9.41583 5.99917C9.04833 5.7225 8.97333 5.2 9.25 4.8325C10.6025 3.0325 12.6675 2 14.9167 2C18.8225 2 22 5.1775 22 9.08333V9.08167Z"
+                      d="M13 0H5C2.24 0 0 2.24 0 5V15C0 17.76 2.24 20 5 20H13C15.76 20 18 17.76 18 15V5C18 2.24 15.76 0 13 0ZM9 20.3317C6.096 20.3317 3.666 17.9017 3.666 14.915C3.666 11.928 6.096 9.498 9 9.498C11.904 9.498 14.334 11.928 14.334 14.915C14.334 17.9017 11.904 20.3317 9 20.3317ZM22 9.08167C22 11.33 20.9675 13.3958 19.1675 14.7483C19.0175 14.8608 18.8417 14.915 18.6675 14.915C18.4142 14.915 18.1642 14.8 18 14.5825C17.7242 14.215 17.7983 13.6925 18.1658 13.4158C19.5425 12.3817 20.3333 10.8017 20.3333 9.0825C20.3333 6.09583 17.9033 3.66583 14.9167 3.66583C13.1975 3.66583 11.6175 4.45583 10.5825 5.83333C10.3067 6.20083 9.785 6.27417 9.41583 5.99917C9.04833 5.7225 8.97333 5.2 9.25 4.8325C10.6025 3.0325 12.6675 2 14.9167 2C18.8225 2 22 5.1775 22 9.08333V9.08167Z"
                     className="fill-[#9fa6ae] h-5 w-5 stroke-none"
                   ></path>
                 </svg>
@@ -255,7 +306,7 @@ function Result() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold dark:text-white">Congratulations! Your application has been approved</h2>
-                <p className="text-gray-600 dark:text-gray-400">Based on your attested data, Easy Crypto is ready to offer you a loan</p>
+                <p className="text-gray-600 dark:text-gray-400">Based on your attested data, {selectedLoan?.provider || "Easy Crypto"} is ready to offer you a loan</p>
               </div>
             </div>
 
@@ -263,12 +314,16 @@ function Result() {
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                 <div className="mb-4 md:mb-0">
                   <div className="flex items-center">
-                    <img src="/logos/easy-crypto.webp" alt="Easy Crypto" className="h-10 w-10 mr-3 object-contain" />
-                    <h3 className="text-lg font-medium dark:text-white">Easy Crypto Loan Offer</h3>
+                    <img 
+                      src={getProviderLogo(selectedLoan?.provider || "Easy Crypto")} 
+                      alt={selectedLoan?.provider || "Easy Crypto"} 
+                      className="h-10 w-10 mr-3 object-contain" 
+                    />
+                    <h3 className="text-lg font-medium dark:text-white">{selectedLoan?.provider || "Easy Crypto"} Loan Offer</h3>
                   </div>
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
-                  <span className="text-blue-700 dark:text-blue-300 font-medium">Pre-approved up to $50,000 NZDD</span>
+                  <span className="text-blue-700 dark:text-blue-300 font-medium">Pre-approved up to {selectedLoan?.maxAmount || "$50,000"} NZDD</span>
                 </div>
               </div>
 
@@ -292,7 +347,7 @@ function Result() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Interest Rate</p>
-                  <p className="text-lg font-semibold dark:text-white">3.5% per month</p>
+                  <p className="text-lg font-semibold dark:text-white">{selectedLoan?.interestRate || "3.5%"} per month</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Term Options</p>
@@ -330,7 +385,7 @@ function Result() {
                         placeholder="Enter amount"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Maximum: $50,000 NZDD</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Maximum: ${selectedLoan?.maxAmount || "$50,000"} NZDD</p>
                   </div>
                   <div>
                     <label htmlFor="loanTerm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -366,13 +421,13 @@ function Result() {
                       <span className="font-medium dark:text-white">${Number(loanAmount / loanTerm).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Interest (3.5%):</span>
-                      <span className="font-medium dark:text-white">${Number(loanAmount * 0.035).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD</span>
+                      <span className="text-gray-600 dark:text-gray-400">Interest ({selectedLoan?.interestRate || "3.5%"}):</span>
+                      <span className="font-medium dark:text-white">${Number(loanAmount * (selectedLoan?.interestRate ? parseFloat(selectedLoan.interestRate.replace(/%/g, '')) / 100 : 0.035)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD</span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                       <span className="font-medium text-gray-700 dark:text-gray-300">Total Monthly Payment:</span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        ${Number(Number(loanAmount) / Number(loanTerm) + Number(loanAmount) * 0.035).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD
+                        ${Number(Number(loanAmount) / Number(loanTerm) + Number(loanAmount) * (selectedLoan?.interestRate ? parseFloat(selectedLoan.interestRate.replace(/%/g, '')) / 100 : 0.035)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD
                       </span>
                     </div>
                   </div>
@@ -387,12 +442,12 @@ function Result() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Total Interest:</span>
-                      <span className="font-medium dark:text-white">${Number(Number(loanAmount) * 0.035 * Number(loanTerm)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD</span>
+                      <span className="font-medium dark:text-white">${Number(Number(loanAmount) * (selectedLoan?.interestRate ? parseFloat(selectedLoan.interestRate.replace(/%/g, '')) / 100 : 0.035) * Number(loanTerm)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD</span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                       <span className="font-medium text-gray-700 dark:text-gray-300">Total Repayment:</span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
-                        ${Number(Number(loanAmount) + Number(loanAmount) * 0.035 * Number(loanTerm)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD
+                        ${Number(Number(loanAmount) + Number(loanAmount) * (selectedLoan?.interestRate ? parseFloat(selectedLoan.interestRate.replace(/%/g, '')) / 100 : 0.035) * Number(loanTerm)).toLocaleString('en-US', {maximumFractionDigits: 2})} NZDD
                       </span>
                     </div>
                   </div>
@@ -410,7 +465,10 @@ function Result() {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md font-medium transition-colors">
+                  <button 
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md font-medium transition-colors"
+                    onClick={handleAcceptOffer}
+                  >
                     Accept Offer & Continue
                   </button>
                   <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-md font-medium border border-gray-300 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white dark:border-gray-600">
