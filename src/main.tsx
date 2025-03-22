@@ -10,8 +10,8 @@ import Success from "./Success.tsx";
 import { LoanProvider } from "./context/LoanContext.tsx";
 import { IdentityProvider } from "./context/IdentityContext";
 import Landing from "./Landing.tsx";
-import { Web3Provider } from "./components/web3-provider.tsx";
-import WalletBouncer from "./components/web3/wallet-bouncer.tsx";
+import { Web3Provider } from "./components/web3/web3-provider.tsx";
+// import WalletBouncer from "./components/web3/wallet-bouncer.tsx";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add("dark");
