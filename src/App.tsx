@@ -5,7 +5,7 @@ function App() {
         <div className="flex flex-col h-full">
           <div className="flex-shrink-0 flex items-center px-4 py-5 pt-8">
             <a className="outline-none" href="/">
-              <h1 className="text-2xl font-bold">Broker</h1>
+              <h1 className="text-2xl font-bold">Loan Market</h1>
             </a>
           </div>
 
