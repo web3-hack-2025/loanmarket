@@ -9,6 +9,7 @@ export interface ExistingIdentity {
   expiryDate: string;
   status: "active" | "expiring" | "expired";
   imagePath: string;
+  customData?: object;
 }
 
 // Initial identities data

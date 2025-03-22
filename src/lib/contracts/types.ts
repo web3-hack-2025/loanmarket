@@ -30,7 +30,7 @@ export const CONTRACTS = {
     loanContract: {
       name: "Identify Verifier",
       version: "1.0.0",
-      address: "0x7449b8a58357Cb8f6227a240D3ac529b1418AE7a" as `0x${string}`,
+      address: "0x7603b4f57E48c5f0E44c9859422D4c26bcF1fB63" as `0x${string}`,
       abi: ABI
     },
     network: {

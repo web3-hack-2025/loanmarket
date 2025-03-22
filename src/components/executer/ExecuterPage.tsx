@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoan } from "@/hooks/useLoan";
 import { Button } from "@/components/ui/button";
-import { ConnectWalletButton, useSimpleKit } from "@/components/web3/simplekit";
+import { ConnectWalletButton } from "@/components/web3/simplekit";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -12,7 +12,6 @@ import { getLoanContractConfig, formatLoanAmount } from "@/lib/contracts/loan-co
 import { Progress } from "@/components/ui/progress";
 import ShaderBackground from "../ShaderBackground";
 import { ByteArray, toBytes } from "viem";
-import { useIdentity } from "@/context/IdentityContext";
 
 
 enum TransactionStatus {
@@ -79,10 +78,10 @@ export function ExecuterPage() {
 
   interface AcceptOfferArgs {
     loanProvider: string;
-    borrowAmount: BigInt;
+    borrowAmount: bigint;
     targetAddr: string;
-    expiryUnix: BigInt;
-    nonce: BigInt;
+    expiryUnix: bigint;
+    nonce: bigint;
     signature: ByteArray;
   }
 
@@ -170,8 +169,8 @@ export function ExecuterPage() {
         borrowAmount: formatLoanAmount(requestedAmount),
         targetAddr: account.address ?? "",
         expiryUnix: BigInt(Date.now() + 1000 * 180),
-        nonce: BigInt(12345),
-        signature: toBytes("123123"),
+        nonce: BigInt(Math.round(Math.random()*1000)),
+        signature: toBytes(selectedLoan?.name || ""),
       } });
     } catch (error: unknown) {
       console.error("Transaction preparation error:", error);
