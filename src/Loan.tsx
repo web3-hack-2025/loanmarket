@@ -106,16 +106,9 @@ function Loan() {
                 Identity
               </SidebarItem>
               
-              <div role="button" tabIndex={0} className="relative hover:bg-muted/50 flex items-center gap-2 mt-3 py-2 px-4 text-muted-foreground rounded-md">
-                <RefreshCw className="h-5 w-5" />
-                <span className="truncate select-none font-medium">
-                  Move crypto
-                </span>
-              </div>
+           
               
-              <SidebarItem href="/explore/tokens" icon={<Compass className="h-5 w-5" />} isMuted={true}>
-                Discover
-              </SidebarItem>
+             
             </nav>
           </div>
         </div>
