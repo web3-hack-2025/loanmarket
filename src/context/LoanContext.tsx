@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, useEffect } from "react";
 
 interface Loan {
   id: string;
@@ -10,6 +10,8 @@ interface Loan {
   maxAmount: string;
   status: string;
   description?: string;
+  amount?: string;
+  dateApproved?: string;
 }
 
 interface LoanContextType {
@@ -21,6 +23,9 @@ interface LoanContextType {
   setSelectedLoan: (loan: Loan | null) => void;
   getMinAmount: () => number;
   getMaxAmount: () => number;
+  completedLoans: Loan[];
+  addCompletedLoan: (loan: Loan) => void;
+  removeCompletedLoan: (loanId: string) => void;
 }
 
 const LoanContext = createContext<LoanContextType | undefined>(undefined);
@@ -29,6 +34,29 @@ export function LoanProvider({ children }: { children: ReactNode }) {
   const [requestedAmount, setRequestedAmount] = useState<string>("");
   const [termLength, setTermLength] = useState<string>("");
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [completedLoans, setCompletedLoans] = useState<Loan[]>([]);
+
+  // Load completed loans from localStorage on component mount
+  useEffect(() => {
+    const savedLoans = localStorage.getItem('completedLoans');
+    if (savedLoans) {
+      try {
+        setCompletedLoans(JSON.parse(savedLoans));
+      } catch (e) {
+        console.error('Failed to parse completed loans from localStorage', e);
+      }
+    }
+  }, []);
+
+  // Save completed loans to localStorage whenever they change
+  useEffect(() => {
+    if (completedLoans.length > 0) {
+      localStorage.setItem('completedLoans', JSON.stringify(completedLoans));
+    } else {
+      // If there are no loans, remove the item from localStorage
+      localStorage.removeItem('completedLoans');
+    }
+  }, [completedLoans]);
 
   // Calculate the minimum amount (10% less than requested)
   const getMinAmount = (): number => {
@@ -42,6 +70,36 @@ export function LoanProvider({ children }: { children: ReactNode }) {
     return numericAmount * 1.1;
   };
 
+  // Add a completed loan to the array
+  const addCompletedLoan = (loan: Loan) => {
+    // Add current date as approval date if not provided
+    const loanWithDate = {
+      ...loan,
+      dateApproved: loan.dateApproved || new Date().toISOString(),
+      amount: loan.amount || requestedAmount,
+    };
+    
+    // Check if loan with same ID already exists
+    const existingLoanIndex = completedLoans.findIndex(existingLoan => existingLoan.id === loan.id);
+    
+    if (existingLoanIndex === -1) {
+      // If loan doesn't exist, add it to the array
+      console.log("Adding new loan:", loanWithDate);
+      setCompletedLoans(prevLoans => [...prevLoans, loanWithDate]);
+    } else {
+      // If loan exists, update it
+      console.log("Updating existing loan:", loanWithDate);
+      const updatedLoans = [...completedLoans];
+      updatedLoans[existingLoanIndex] = loanWithDate;
+      setCompletedLoans(updatedLoans);
+    }
+  };
+
+  // Remove a completed loan by ID
+  const removeCompletedLoan = (loanId: string) => {
+    setCompletedLoans(prevLoans => prevLoans.filter(loan => loan.id !== loanId));
+  };
+
   return (
     <LoanContext.Provider
       value={{
@@ -53,6 +111,9 @@ export function LoanProvider({ children }: { children: ReactNode }) {
         setSelectedLoan,
         getMinAmount,
         getMaxAmount,
+        completedLoans,
+        addCompletedLoan,
+        removeCompletedLoan,
       }}
     >
       {children}

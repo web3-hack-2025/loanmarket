@@ -46,9 +46,12 @@ function Result() {
 
   // Create a default loan object for the "Accept Offer & Continue" button
   const handleAcceptOffer = () => {
+    // Generate a unique ID using timestamp and random string
+    const uniqueId = `loan-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    
     // Create a default loan object with the current values
     const defaultLoan: Loan = {
-      id: "default-loan",
+      id: uniqueId,
       provider: selectedLoan?.provider || "NZ Bank",
       name: selectedLoan?.name || "Personal Loan",
       interestRate: selectedLoan?.interestRate || "3.5%",

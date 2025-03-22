@@ -7,7 +7,7 @@ import { getProviderLogo } from "./components/loans-table";
 export function Success() {
   const navigate = useNavigate();
   // Get loan information from context
-  const { requestedAmount, termLength, selectedLoan } = useLoan();
+  const { requestedAmount, termLength, selectedLoan, addCompletedLoan } = useLoan();
 
   // Animation states
   const [showSuccessText, setShowSuccessText] = useState(false);
@@ -26,7 +26,16 @@ export function Success() {
       navigate("/result");
       return;
     }
-  }, [selectedLoan, navigate]);
+    
+    // Add the completed loan to our list
+    addCompletedLoan({
+      ...selectedLoan,
+      amount: requestedAmount,
+      term: termLength ? `${termLength} months` : selectedLoan.term,
+      dateApproved: new Date().toISOString(),
+      status: "active"
+    });
+  }, [selectedLoan, navigate, addCompletedLoan, requestedAmount, termLength]);
 
   // Animation sequence
   useEffect(() => {
@@ -281,18 +290,13 @@ export function Success() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => navigate("/")}
-              className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+            <a
+             href="/"
+              className="px-6 py-3 text-center bg-blue-500 flex-1 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Return to Home
-            </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-            >
-              Go to Dashboard
-            </button>
+            </a>
+            
           </div>
         </div>
       </div>

@@ -410,9 +410,26 @@ const ApplicationDetailsStep = ({
   ) => {
     const { name, value } = e.target;
 
-    // If the loan amount is changing, update the context
+    // If the loan amount is changing, format with commas and update the context
     if (name === "loanAmount") {
-      setRequestedAmount(value);
+      // Remove non-numeric characters
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      // Format with commas
+      const formattedValue = numericValue === '' 
+        ? '' 
+        : Number(numericValue).toLocaleString('en-US');
+      
+      // Update the loan amount in context (without commas for calculations)
+      setRequestedAmount(numericValue);
+      
+      // Update the form state with formatted value
+      setPersonalInfo({
+        ...personalInfo,
+        [name]: formattedValue,
+      });
+      
+      return;
     }
 
     // If the term length is changing, update the context
@@ -509,7 +526,6 @@ const ApplicationDetailsStep = ({
               id="termLength"
               name="termLength"
               value={personalInfo.termLength}
-              defaultValue={12}
               onChange={handleInputChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
@@ -769,7 +785,7 @@ function Apply() {
   const [applicationType, setApplicationType] = useState("");
   const [selectedIdentityIds, setSelectedIdentityIds] = useState<string[]>([]);
   const [personalInfo, setPersonalInfo] = useState({
-    loanAmount: "12000",
+    loanAmount: "12,000",
     termLength: "6",
     loanReason: "",
     otherReasonText: "",
@@ -795,7 +811,7 @@ function Apply() {
   // Handle submit application
   const submitApplication = () => {
     // Save the loan amount to context before navigating
-    setRequestedAmount(personalInfo.loanAmount);
+    setRequestedAmount(personalInfo.loanAmount.replace(/,/g, ''));
     // Save the term length to context before navigating
     setTermLength(personalInfo.termLength);
 
