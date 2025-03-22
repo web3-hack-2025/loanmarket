@@ -1,10 +1,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const SignatureStoreModule = buildModule("SignatureStoreModule", (m) => {
+const LoanOfferModule = buildModule("LoanOfferModule", (m) => {
 
-  const SignatureStore = m.contract("SignatureStore", ["0xc0ffee254729296a45a3885639AC7E10F9d54979"]);
+  const LoanOffer = m.contract("LoanOffer", []);
 
-  return { SignatureStore };
+  return { LoanOffer };
 });
 
-export default SignatureStoreModule;
+export default LoanOfferModule;
