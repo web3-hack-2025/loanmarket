@@ -10,6 +10,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt, useTransactionConfirmations } from "wagmi";
 import { getLoanContractConfig, formatLoanAmount } from "@/lib/contracts/loan-contract";
 import { Progress } from "@/components/ui/progress";
+import ShaderBackground from "../ShaderBackground";
 
 
 enum TransactionStatus {
@@ -135,26 +136,52 @@ export function ExecuterPage() {
     }
   };
 
+  const [runningSucessAnimation, setRunningSucessAnimation] = useState(false);
+  const [zoomOut, setZoomOut] = useState(false);
+  
   const handleContinue = () => {
+    
     navigate("/success");
   };
+  useEffect(() => {
+    if (runningSucessAnimation) {
+      return;
+    }
+
+    if (transactionStatus === TransactionStatus.SUCCESS) {
+      setRunningSucessAnimation(true);
+      setTimeout(() => {
+        setZoomOut(true);
+      }, 3000);
+      setTimeout(handleContinue, 3200);
+    }
+  },[transactionStatus, runningSucessAnimation]);
+
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
+
+
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <div className="fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out" style={{ opacity: Number(confirmationsData?? 0) / (requiredConfirmations+1) }}>
+        <ShaderBackground />
+      </div>
       {/* Header */}
-      <div className="p-6 flex items-center justify-between border-b">
+      <div className="p-6 flex items-center justify-between border-b z-1 dark:bg-gray-800/90">
         <h1 className="text-2xl font-bold tracking-tight">Execute Loan Agreement</h1>
         <ConnectWalletButton />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 max-w-4xl mx-auto w-full">
+      <div className={`flex-1 p-8 max-w-4xl mx-auto w-full z-1 transition-transform duration-500
+          ${zoomOut ? "transform scale-0" : "transform scale-100"}
+        `}>
       {selectedLoan && (
-        <Card className="mb-8">
+        <Card className="mb-8 ">
           <CardHeader>
             <CardTitle>Loan Details</CardTitle>
             <CardDescription>
@@ -231,10 +258,10 @@ export function ExecuterPage() {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Transaction sent</span>
-                          <span>{confirmationsData ?? -1} of {requiredConfirmations} confirmations</span>
+                          <span>{confirmationsData ?? "?"} of {requiredConfirmations} confirmations</span>
                         </div>
                         <Progress 
-                          value={((Number(confirmationsData  ?? -1)) / requiredConfirmations) * 100} 
+                          value={((Number(confirmationsData  ?? 0)) / requiredConfirmations) * 100} 
                           className="h-2 bg-yellow-200 dark:bg-yellow-900"
                         />
                         <p className="text-xs mt-1">
@@ -253,7 +280,7 @@ export function ExecuterPage() {
               )}
 
               {transactionStatus === TransactionStatus.SUCCESS && (
-                <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 transition-all duration-500 ease-in">
                   <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 mr-2" />
                   <AlertTitle>Transaction Successful</AlertTitle>
                   <AlertDescription>
@@ -292,15 +319,15 @@ export function ExecuterPage() {
               onClick={handleContinue}
               className="bg-green-600 hover:bg-green-700"
             >
-              Continue to Success
+              Continue
             </Button>
           ) : (
             <Button
               onClick={executeTransaction}
-              disabled={isPending || !isConnected}
-              className={isPending ? "opacity-70" : ""}
+              disabled={transactionStatus === TransactionStatus.PENDING || !isConnected}
+              className={transactionStatus === TransactionStatus.PENDING ? "opacity-70" : ""}
             >
-              {isPending ? (
+              {transactionStatus === TransactionStatus.PENDING ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4 animate-spin" />
                   Executing Contract...
