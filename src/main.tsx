@@ -11,6 +11,7 @@ import { LoanProvider } from "./context/LoanContext.tsx";
 import { IdentityProvider } from './context/IdentityContext'
 import React from "react";
 import Landing from "./Landing.tsx";
+import { Web3Provider } from "./components/web3-provider.tsx";
 
 // Force dark mode regardless of user's system preference
 document.documentElement.classList.add('dark')
@@ -30,24 +31,26 @@ const root = document.getElementById("root");
 
 if (root) {
   ReactDOM.createRoot(root).render(
+    <Web3Provider>
+      <LoanProvider>
+        <IdentityProvider>
 
-    <LoanProvider>
-           <IdentityProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/loan" element={<App />} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/loan" element={<App />} />
 
-          <Route path="/apply" element={<Apply />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="/offers" element={<Application />} />
-          <Route path="/success" element={<Success />} />
+              <Route path="/apply" element={<Apply />} />
+              <Route path="/result" element={<Result />} />
+              <Route path="/offers" element={<Application />} />
+              <Route path="/success" element={<Success />} />
 
-          <Route path="/identity" element={<Identity />} />
-        </Routes>
-      </BrowserRouter>
-      </IdentityProvider>
-    </LoanProvider>
+              <Route path="/identity" element={<Identity />} />
+            </Routes>
+          </BrowserRouter>
+        </IdentityProvider>
+      </LoanProvider>
+    </Web3Provider>
 
   );
 } else {
