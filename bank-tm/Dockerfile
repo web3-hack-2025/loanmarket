@@ -5,4 +5,5 @@ WORKDIR /app
 COPY ./bank-tm/package.json ./bank-tm/pnpm-lock.yaml ./
 RUN pnpm i
 COPY ./bank-tm .
+COPY ./backend/src/lib.ts ./src
 ENTRYPOINT ["pnpm", "run", "dev"]
