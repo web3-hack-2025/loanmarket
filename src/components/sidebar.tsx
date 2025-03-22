@@ -33,7 +33,7 @@ function SidebarItem({
     <Link
       to={href}
       className={cn(
-        "group flex items-center py-2 hover:bg-hover relative",
+        "group flex items-center p-2 hover:bg-[#0376c9]/10 hover:border-gray-500/10 rounded-lg hover:text-blue-400 border-2 border-transparent relative",
         isActive 
           ? "text-[#0376c9] dark:text-white font-semibold" 
           : "text-[#9fa6ae]"
@@ -88,7 +88,7 @@ export function Sidebar({
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <nav className="space-y-3 mt-8 px-4">
+            <nav className="flex flex-col gap-2 mt-8 px-4">
               <SidebarItem 
                 href="/loan" 
                 icon={<Home className="h-5 w-5 text-white" />}
