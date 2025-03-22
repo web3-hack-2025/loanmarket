@@ -61,6 +61,12 @@ function Result() {
     termLength: contextTermLength,
     selectedLoan,
     setSelectedLoan,
+    formatCurrency,
+    getMonthlyPayment,
+    getTotalInterest,
+    getTotalRepayment,
+    getPrincipalPayment,
+    getInterestPayment,
     setRequestedAmount
   } = useLoan();
   const navigate = useNavigate();
@@ -121,8 +127,8 @@ function Result() {
     // Update the requested amount in context to ensure it's available in Success component
     setRequestedAmount(numericLoanAmount);
 
-    // Navigate to success page
-    navigate("/success");
+    // Navigate to execute page instead of success
+    navigate("/execute");
   };
 
   // The loan to display (either from context or fallback)
