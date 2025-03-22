@@ -223,11 +223,6 @@ export default function BankAccountOption({ onBack, onClose }: BankAccountOption
           issueDate,
           expiryDate,
           imagePath: '',
-          transactions: transactions,
-          bankInfo: {
-            bank: bankName,
-            accountName: accountName,
-          },
           customData: {
             accountSummary,
             creditScore: Math.floor(Math.random() * 300) + 500, // Simulated credit score between 500-800
@@ -236,7 +231,12 @@ export default function BankAccountOption({ onBack, onClose }: BankAccountOption
             currencyCode: 'NZD',
             lastUpdated: new Date().toISOString(),
             verified: true,
-            analysisVersion: '1.0'
+            analysisVersion: '1.0',
+            transactions: transactions,
+            bankInfo: {
+              bank: bankName,
+              accountName: accountName,
+            }  
           }
         });
         

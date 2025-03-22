@@ -1,5 +1,7 @@
 // Contract interface definitions for easy swapping between implementations
 
+import { ABI } from "@/lib/contracts/abi";
+
 // Basic contract interface 
 export interface IContract {
   address: `0x${string}`;
@@ -26,32 +28,16 @@ export interface ContractConfig {
 export const CONTRACTS = {
   TESTNET: {
     loanContract: {
-      name: "SimpleLoan",
+      name: "Identify Verifier",
       version: "1.0.0",
-      address: "0xBf9646d4408Da5E50C019c24A41c35cc72881186" as `0x${string}`,
-      abi: [
-        { inputs: [{ name: "num", type: "uint256" }], name: "store", type: "function", stateMutability: "nonpayable" },
-        { inputs: [], name: "retrieve", type: "function", stateMutability: "view", outputs: [{ type: "uint256" }] }
-      ]
+      address: "0x7603b4f57E48c5f0E44c9859422D4c26bcF1fB63" as `0x${string}`,
+      abi: ABI
     },
     network: {
       chainId: 11155111, // Sepolia testnet
       name: "Sepolia"
     }
   },
-  // This can be uncommented and filled in when the HardHat contract is ready
-  // HARDHAT: {
-  //   loanContract: {
-  //     name: "LoanOffer",
-  //     version: "1.0.0",
-  //     address: "0x...", // To be filled with HardHat deployed contract address
-  //     abi: [] // To be filled with HardHat generated ABI
-  //   },
-  //   network: {
-  //     chainId: 31337, // HardHat local network
-  //     name: "HardHat"
-  //   }
-  // }
 };
 
 // Default configuration - can be switched between different implementations

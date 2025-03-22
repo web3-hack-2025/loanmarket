@@ -17,7 +17,7 @@ export interface Loan {
   provider: string;
   interestRate: string;
   term: string;
-  offer: string;
+  offer?: string;
   collateralRequired: string;
   maxAmount: string;
   status: "available" | "limited" | "coming soon";
@@ -172,8 +172,8 @@ export function LoansTable() {
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     if (!sortColumn || !sortDirection) return 0;
 
-    const aValue = a[sortColumn];
-    const bValue = b[sortColumn];
+    const aValue = a[sortColumn] || "";
+    const bValue = b[sortColumn] || "";
 
     if (sortDirection === "asc") {
       return aValue.localeCompare(bValue);

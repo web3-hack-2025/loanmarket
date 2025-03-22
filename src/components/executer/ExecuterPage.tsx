@@ -11,6 +11,7 @@ import { useAccount, useWriteContract, useReadContract, useWaitForTransactionRec
 import { getLoanContractConfig, formatLoanAmount } from "@/lib/contracts/loan-contract";
 import { Progress } from "@/components/ui/progress";
 import ShaderBackground from "../ShaderBackground";
+import { ByteArray, toBytes } from "viem";
 
 
 enum TransactionStatus {
@@ -30,6 +31,8 @@ export function ExecuterPage() {
     formatCurrency, 
     getMonthlyPayment,
   } = useLoan();
+
+  const account = useAccount();
   
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(TransactionStatus.IDLE);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -63,12 +66,39 @@ export function ExecuterPage() {
 
   // Function to execute the contract write
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const executeStore = ({ args }: { args: any[] }) => {
+
+  // function acceptOffer(        
+  //   string memory loanProvider,
+  //   uint256 borrowAmount,
+  //   address payable targetAddr,
+  //   uint256 expiryUnix,
+  //   uint256 nonce,
+  //   bytes memory signature
+  //   ) public payable
+
+  interface AcceptOfferArgs {
+    loanProvider: string;
+    borrowAmount: bigint;
+    targetAddr: string;
+    expiryUnix: bigint;
+    nonce: bigint;
+    signature: ByteArray;
+  }
+
+
+  const executeAcceptOffer = ({ args }: { args: AcceptOfferArgs }) => {
     writeContract({
       address: contractConfig.address,
       abi: contractConfig.abi,
-      functionName: "store",
-      args
+      functionName: "acceptOffer",
+      args: [
+        args.loanProvider,
+        args.borrowAmount,
+        args.targetAddr,
+        args.expiryUnix,
+        args.nonce,
+        args.signature
+      ]
     });
   };
   
@@ -123,12 +153,25 @@ export function ExecuterPage() {
       if (!isConnected) {
         throw new Error("Wallet not connected");
       }
-      
-      // Format the loan amount for the contract
-      const amountValue = formatLoanAmount(requestedAmount);
+        // function acceptOffer(        
+  //   string memory loanProvider,
+  //   uint256 borrowAmount,
+  //   address payable targetAddr,
+  //   uint256 expiryUnix,
+  //   uint256 nonce,
+  //   bytes memory signature
+  //   ) public payable
+
       
       // Execute the transaction
-      executeStore({ args: [amountValue] });
+      executeAcceptOffer({ args: {
+        loanProvider: selectedLoan?.provider || "",
+        borrowAmount: formatLoanAmount(requestedAmount),
+        targetAddr: account.address ?? "",
+        expiryUnix: BigInt(Date.now() + 1000 * 180),
+        nonce: BigInt(Math.round(Math.random()*1000)),
+        signature: toBytes(selectedLoan?.name || ""),
+      } });
     } catch (error: unknown) {
       console.error("Transaction preparation error:", error);
       setTransactionStatus(TransactionStatus.ERROR);
